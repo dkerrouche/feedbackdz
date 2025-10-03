@@ -1,18 +1,73 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Layout from '@/components/Layout'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import BusinessProfile from '@/components/business/BusinessProfile'
+import SurveyGenerator from '@/components/survey/SurveyGenerator'
+import { supabase } from '@/lib/supabase'
 import { Business } from '@/types'
 
 export default function Dashboard() {
   const [business, setBusiness] = useState<Business | null>(null)
-  const [activeTab, setActiveTab] = useState<'overview' | 'profile'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'create-survey'>('overview')
+  const [surveys, setSurveys] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadBusinessProfile()
+  }, [])
+
+  const loadBusinessProfile = async () => {
+    try {
+      setLoading(true)
+      
+      // Check if there's any business with the default phone
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('phone', '+213123456789')
+        .single()
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+        console.error('Error loading business:', error)
+      }
+
+      if (data) {
+        setBusiness(data)
+        console.log('✅ Business loaded:', data.name)
+      }
+      
+    } catch (err: any) {
+      console.error('❌ Error loading business profile:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleBusinessCreated = (newBusiness: Business) => {
     setBusiness(newBusiness)
     setActiveTab('overview')
+  }
+
+  const handleSurveyCreated = (survey: any) => {
+    setSurveys(prev => [survey, ...prev])
+    setActiveTab('overview')
+  }
+
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <Layout>
+          <div className="flex items-center justify-center min-h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading dashboard...</p>
+            </div>
+          </div>
+        </Layout>
+      </ProtectedRoute>
+    )
   }
 
   return (
@@ -46,6 +101,19 @@ export default function Dashboard() {
                 >
                   Business Profile
                 </button>
+                <button
+                  onClick={() => setActiveTab('create-survey')}
+                  disabled={!business}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                    activeTab === 'create-survey'
+                      ? 'bg-blue-600 text-white'
+                      : business
+                      ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  Create Survey {!business && '(Need Business Profile)'}
+                </button>
               </div>
             </div>
             <p className="text-gray-600">
@@ -56,6 +124,15 @@ export default function Dashboard() {
           {/* Business Profile Tab */}
           {activeTab === 'profile' && (
             <BusinessProfile onBusinessCreated={handleBusinessCreated} />
+          )}
+
+          {/* Create Survey Tab */}
+          {activeTab === 'create-survey' && business && (
+            <SurveyGenerator
+              business={business}
+              onSurveyCreated={handleSurveyCreated}
+              onCancel={() => setActiveTab('overview')}
+            />
           )}
 
           {/* Overview Tab */}
@@ -88,18 +165,57 @@ export default function Dashboard() {
                 </div>
               </div>
 
+              {/* Surveys */}
+              <div className="bg-white shadow rounded-lg p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Your Surveys
+                </h3>
+                {surveys.length > 0 ? (
+                  <div className="space-y-4">
+                    {surveys.map((survey, index) => (
+                      <div key={survey.id || index} className="p-4 border border-gray-200 rounded-lg">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-medium text-gray-900">Survey #{index + 1}</h4>
+                            <p className="text-sm text-gray-600">QR Code: {survey.qr_code}</p>
+                            <p className="text-sm text-gray-600">
+                              {survey.questions?.length || 0} questions • {survey.languages?.join(', ') || 'No languages'}
+                            </p>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button className="text-blue-600 hover:text-blue-800 text-sm">
+                              View QR
+                            </button>
+                            <button className="text-green-600 hover:text-green-800 text-sm">
+                              Download
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No surveys yet. Create your first survey to start collecting feedback!</p>
+                    {business && (
+                      <button 
+                        onClick={() => setActiveTab('create-survey')}
+                        className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+                      >
+                        Create Survey
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {/* Recent Responses */}
               <div className="bg-white shadow rounded-lg p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
                   Recent Responses
                 </h3>
                 <div className="text-center py-8 text-gray-500">
-                  <p>No responses yet. Create your first survey to start collecting feedback!</p>
-                  {business && (
-                    <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
-                      Create Survey
-                    </button>
-                  )}
+                  <p>No responses yet. Share your QR code to start collecting feedback!</p>
                 </div>
               </div>
             </>
