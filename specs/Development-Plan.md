@@ -39,7 +39,11 @@
 
 ### 🔄 In Progress (Week 2 - Day 1)
 - **AI Survey Generation:** Integrate OpenAI API for survey creation
-- **QR Code System:** Generate and download QR codes
+
+### ✅ Completed (Week 2 - Day 2)
+- **QR Code System:** QR preview and PNG/SVG download in dashboard ✅
+- **UI Style Polish:** Higher contrast, refined cards/buttons, labels ✅
+- **Style Guide:** Added `specs/guide_style.md` (palette/typography/components) ✅
 
 ### 📋 Sprint 2 Goals (Week 2)
 1. **Business Dashboard** - Complete business profile management ✅ **COMPLETED**
@@ -97,22 +101,22 @@
 **Deliverables:**
 - [ ] Business profile creation and management
 - [ ] AI-powered survey generation (OpenAI integration)
-- [ ] QR code generation and download functionality
+- [x] QR code generation and download functionality ✅
 - [ ] Survey editor with question customization
 - [ ] Basic dashboard layout
 
 **Tasks:**
 - Create business profile forms (name, category, description)
 - Integrate OpenAI API for survey generation
-- Implement QR code generation using qrcode library
+- Implement QR code generation using qrcode library ✅ (PNG/SVG in dashboard)
 - Build survey editor with drag-and-drop questions
-- Create downloadable assets (PDF, PNG, SVG)
+- Create downloadable assets (PDF later; PNG/SVG done)
 - Design dashboard layout with navigation
 
 **Acceptance Criteria:**
 - Business can create profile in <2 minutes
 - AI generates relevant survey questions from description
-- QR codes generate instantly and download correctly
+- QR codes generate instantly and download correctly ✅
 - Survey editor allows customization of questions
 - Dashboard loads in <3 seconds
 
