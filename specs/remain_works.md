@@ -12,17 +12,18 @@
 - Store QR metadata/asset URLs (optional) or generate on-the-fly — On-the-fly now
 - Acceptance: View + download QR from dashboard — DONE; link awaits public page
 
-#### 3) Public survey experience (PWA)
-- Public page at `/s/{qr_code}` loads survey (rate + text)
-- Submit response to `responses` with basic metadata
-- Thank-you page; fast, mobile-first; AR/FR language toggle
-- Acceptance: <30s flow; successful inserts under RLS
+#### 3) Public survey experience (PWA) ✅
+- Public page at `/s/{qr_code}` loads survey (rate + text) — DONE
+- Submit response to `responses` with basic metadata — DONE
+- Thank-you page; fast, mobile-first — DONE; AR/FR toggle pending
+- Survey fixes: question ordering, independent ratings, proper loading — DONE
+- Acceptance: <30s flow; successful inserts under RLS — DONE
 
-#### 4) Response collection mechanics
-- API to fetch survey by `qr_code`
-- API to create response (rating + text now)
-- Store `ip_address` and `user_agent`; basic rate limit
-- Acceptance: Responses visible in DB; minimal spam control
+#### 4) Response collection mechanics ✅
+- API to fetch survey by `qr_code` — DONE
+- API to create response (rating + text now) — DONE
+- Store `ip_address` and `user_agent`; basic rate limit — PARTIAL (stored; rate limit pending)
+- Acceptance: Responses visible in DB; minimal spam control — PARTIAL
 
 #### 5) Voice pipeline (MVP)
 - Client: MediaRecorder capture (WebM/Opus), size <1MB, retry

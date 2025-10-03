@@ -41,6 +41,8 @@
 - QR preview + PNG/SVG download in dashboard via `QrViewer` and `utils/qr`
 - Dashboard UI with Overview, Business Profile, and Create Survey tabs (analytics placeholders)
 - Style guide added at `specs/guide_style.md`; components restyled for contrast
+ - Public survey flow: `/s/{qr_code}` page for rating + text; public APIs to fetch survey and submit responses
+- Survey fixes: proper question ordering, independent rating handling, dashboard loads existing surveys
 
 ### What’s not implemented (gaps)
 - Real phone OTP authentication with Supabase (replace mock)
