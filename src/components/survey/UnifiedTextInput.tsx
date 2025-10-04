@@ -71,39 +71,37 @@ export default function UnifiedTextInput({
 
       {/* Chat-like Input Container */}
       <div className="relative">
-        {/* Text Input Area */}
-        <div className="relative bg-white border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-blue-600">
-          <textarea
-            ref={textareaRef}
-            value={value}
-            onChange={handleTextChange}
-            placeholder={placeholder}
-            disabled={disabled}
-            rows={3}
-            className="w-full px-4 py-3 pr-12 border-0 rounded-lg resize-none focus:outline-none focus:ring-0 placeholder:text-gray-400 text-gray-900"
-          />
-          
-          {/* Voice Button */}
-          <button
-            type="button"
-            onClick={toggleVoiceRecorder}
-            disabled={disabled}
-            className={`absolute right-3 top-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
-              hasAudio
-                ? 'bg-green-100 text-green-600 hover:bg-green-200'
-                : showVoiceRecorder
-                ? 'bg-red-100 text-red-600 hover:bg-red-200'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-            title={hasAudio ? 'Voice recorded' : showVoiceRecorder ? 'Cancel recording' : 'Record voice'}
-          >
-            {hasAudio ? '🎤' : showVoiceRecorder ? '✕' : '🎤'}
-          </button>
-        </div>
-
-        {/* Voice Recorder (shown when voice button clicked) */}
-        {showVoiceRecorder && (
-          <div className="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        {!showVoiceRecorder ? (
+          /* Text Input Area */
+          <div className="relative bg-white border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-blue-600">
+            <textarea
+              ref={textareaRef}
+              value={value}
+              onChange={handleTextChange}
+              placeholder={placeholder}
+              disabled={disabled}
+              rows={3}
+              className="w-full px-4 py-3 pr-12 border-0 rounded-lg resize-none focus:outline-none focus:ring-0 placeholder:text-gray-400 text-gray-900"
+            />
+            
+            {/* Voice Button - Bottom Right */}
+            <button
+              type="button"
+              onClick={toggleVoiceRecorder}
+              disabled={disabled}
+              className={`absolute right-3 bottom-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                hasAudio
+                  ? 'bg-green-100 text-green-600 hover:bg-green-200'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              title={hasAudio ? 'Voice recorded - Click to record again' : 'Record voice'}
+            >
+              {hasAudio ? '🎤' : '🎤'}
+            </button>
+          </div>
+        ) : (
+          /* Voice Recorder (replaces text input) */
+          <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
             <VoiceRecorder
               onRecordingComplete={handleVoiceRecording}
               onError={handleVoiceError}
@@ -111,10 +109,20 @@ export default function UnifiedTextInput({
               maxDuration={60}
               className="mb-0"
             />
+            {/* Cancel Button */}
+            <div className="mt-3 text-center">
+              <button
+                type="button"
+                onClick={toggleVoiceRecorder}
+                className="text-gray-600 hover:text-gray-800 text-sm font-medium px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel Recording
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Audio Status */}
+        {/* Audio Status (shown when not recording and has audio) */}
         {hasAudio && !showVoiceRecorder && (
           <div className="mt-2 flex items-center justify-between p-2 bg-green-50 border border-green-200 rounded-lg">
             <div className="flex items-center space-x-2">
