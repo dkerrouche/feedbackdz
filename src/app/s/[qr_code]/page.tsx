@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import VoiceRecorder from '@/components/voice/VoiceRecorder'
+import { uploadAudioFile } from '@/lib/audio/upload'
 
 interface SurveyQuestion {
   type: 'rating' | 'text' | 'voice'
@@ -18,8 +20,10 @@ export default function PublicSurveyPage() {
   const [survey, setSurvey] = useState<any>(null)
   const [ratingsByIndex, setRatingsByIndex] = useState<Record<number, number>>({})
   const [answersByIndex, setAnswersByIndex] = useState<Record<number, string>>({})
+  const [audioByIndex, setAudioByIndex] = useState<Record<number, Blob>>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [processingAudio, setProcessingAudio] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -38,6 +42,13 @@ export default function PublicSurveyPage() {
     load()
   }, [qr_code])
 
+  const handleVoiceRecording = (questionIndex: number, audioBlob: Blob) => {
+    setAudioByIndex(prev => ({
+      ...prev,
+      [questionIndex]: audioBlob
+    }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!survey) return
@@ -48,9 +59,28 @@ export default function PublicSurveyPage() {
       setError('Please select a rating')
       return
     }
+    
     try {
       setSubmitting(true)
       setError('')
+      
+      // Process audio files if any
+      let audioUrl = null
+      if (Object.keys(audioByIndex).length > 0) {
+        setProcessingAudio(true)
+        const firstAudioIndex = Object.keys(audioByIndex)[0]
+        const audioBlob = audioByIndex[Number(firstAudioIndex)]
+        
+        // Upload audio file
+        const uploadResult = await uploadAudioFile(audioBlob, survey.id)
+        if (uploadResult.success) {
+          audioUrl = uploadResult.url
+        } else {
+          console.warn('Audio upload failed:', uploadResult.error)
+        }
+        setProcessingAudio(false)
+      }
+      
       const res = await fetch('/api/responses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -63,6 +93,7 @@ export default function PublicSurveyPage() {
             .map((k) => answersByIndex[Number(k)])
             .filter(Boolean)
             .join('\n\n'),
+          audio_url: audioUrl,
           language: 'fr'
         })
       })
@@ -73,6 +104,7 @@ export default function PublicSurveyPage() {
       setError(e.message || 'Failed to submit response')
     } finally {
       setSubmitting(false)
+      setProcessingAudio(false)
     }
   }
 
@@ -144,15 +176,33 @@ export default function PublicSurveyPage() {
                     ))}
                   </div>
                 </>
-              ) : (
+              ) : q.type === 'voice' ? (
                 <>
-                  <p className="text-sm font-semibold text-gray-900 mb-2">{q.text || (q.type === 'voice' ? 'Record your feedback' : 'Your answer')}</p>
+                  <p className="text-sm font-semibold text-gray-900 mb-2">{q.text || 'Record your feedback'}</p>
+                  <VoiceRecorder
+                    onRecordingComplete={(audioBlob) => handleVoiceRecording(idx, audioBlob)}
+                    onError={(error) => setError(error)}
+                    disabled={submitting || processingAudio}
+                    maxDuration={60}
+                    className="mb-4"
+                  />
                   <textarea
                     value={answersByIndex[idx] || ''}
                     onChange={(e) => setAnswersByIndex((prev) => ({ ...prev, [idx]: e.target.value }))}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 placeholder:text-gray-400 text-gray-900"
-                    placeholder={q.type === 'voice' ? 'Type here (voice fallback)' : 'Type here (optional)'}
+                    placeholder="Or type your feedback here (optional)"
+                  />
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-semibold text-gray-900 mb-2">{q.text || 'Your answer'}</p>
+                  <textarea
+                    value={answersByIndex[idx] || ''}
+                    onChange={(e) => setAnswersByIndex((prev) => ({ ...prev, [idx]: e.target.value }))}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 placeholder:text-gray-400 text-gray-900"
+                    placeholder="Type here (optional)"
                   />
                 </>
               )}
@@ -161,10 +211,10 @@ export default function PublicSurveyPage() {
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || processingAudio}
             className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {submitting ? 'Submitting...' : 'Submit'}
+            {processingAudio ? 'Processing audio...' : submitting ? 'Submitting...' : 'Submit'}
           </button>
         </form>
       </div>

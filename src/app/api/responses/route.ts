@@ -4,7 +4,7 @@ import { supabaseServer } from '@/lib/supabase-server'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { survey_id, business_id, rating, text, language } = body
+    const { survey_id, business_id, rating, text, audio_url, language } = body
 
     if (!survey_id || !business_id || !rating) {
       return NextResponse.json({ error: 'survey_id, business_id, rating are required' }, { status: 400 })
@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
         business_id,
         rating,
         transcription: text || null,
+        audio_url: audio_url || null,
         language: language || null,
         ip_address: ip,
         user_agent: userAgent
@@ -36,9 +37,90 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    // If there's an audio URL, trigger background processing
+    if (audio_url && data) {
+      // Trigger AI processing in background (non-blocking)
+      processAudioInBackground(data.id, audio_url, text || '')
+        .catch(err => console.error('Background processing failed:', err))
+    }
+
     return NextResponse.json({ success: true, response: data })
   } catch (err: any) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+// Background processing function
+async function processAudioInBackground(responseId: string, audioUrl: string, text: string) {
+  try {
+    console.log('🔄 Starting background processing for response:', responseId)
+    
+    // Transcribe audio
+    const transcribeResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/ai/transcribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        audioUrl,
+        responseId,
+        language: 'auto'
+      })
+    })
+    
+    const transcribeData = await transcribeResponse.json()
+    let transcription = text
+    
+    if (transcribeData.success && transcribeData.transcription) {
+      transcription = transcribeData.transcription
+      console.log('✅ Transcription completed:', transcription.substring(0, 100) + '...')
+    } else {
+      console.warn('⚠️ Transcription failed:', transcribeData.error)
+    }
+    
+    // Analyze sentiment and extract keywords
+    const analyzeResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/ai/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: transcription,
+        responseId,
+        language: 'auto'
+      })
+    })
+    
+    const analyzeData = await analyzeResponse.json()
+    let sentiment = 'neutral'
+    let sentimentScore = 0.5
+    let keywords: string[] = []
+    
+    if (analyzeData.success) {
+      sentiment = analyzeData.sentiment || 'neutral'
+      sentimentScore = analyzeData.sentimentScore || 0.5
+      keywords = analyzeData.keywords || []
+      console.log('✅ Analysis completed:', { sentiment, sentimentScore, keywords })
+    } else {
+      console.warn('⚠️ Analysis failed:', analyzeData.error)
+    }
+    
+    // Update response with processed data
+    const { error: updateError } = await supabaseServer
+      .from('responses')
+      .update({
+        transcription,
+        sentiment,
+        sentiment_score: sentimentScore,
+        keywords,
+        processed_at: new Date().toISOString()
+      })
+      .eq('id', responseId)
+    
+    if (updateError) {
+      console.error('❌ Failed to update response:', updateError)
+    } else {
+      console.log('✅ Response updated with AI processing results')
+    }
+    
+  } catch (error) {
+    console.error('❌ Background processing error:', error)
   }
 }
 
