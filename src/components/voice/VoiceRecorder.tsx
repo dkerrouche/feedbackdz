@@ -34,7 +34,10 @@ export default function VoiceRecorder({
     }
   }, [onError])
 
-  const startRecording = useCallback(async () => {
+  const startRecording = useCallback(async (e?: React.MouseEvent | React.TouchEvent) => {
+    e?.preventDefault()
+    e?.stopPropagation()
+    
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
@@ -119,7 +122,10 @@ export default function VoiceRecorder({
     }
   }, [maxDuration, onRecordingComplete, onError])
 
-  const stopRecording = useCallback(() => {
+  const stopRecording = useCallback((e?: React.MouseEvent | React.TouchEvent) => {
+    e?.preventDefault()
+    e?.stopPropagation()
+    
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop()
       setIsRecording(false)
@@ -160,6 +166,7 @@ export default function VoiceRecorder({
     <div className={`space-y-4 ${className}`}>
       <div className="text-center">
         <button
+          type="button"
           onMouseDown={startRecording}
           onMouseUp={stopRecording}
           onMouseLeave={stopRecording}
@@ -214,6 +221,7 @@ export default function VoiceRecorder({
           
           <div className="flex justify-center space-x-2">
             <button
+              type="button"
               onClick={resetRecording}
               className="bg-gray-100 text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-200 text-sm font-medium"
             >
