@@ -36,6 +36,16 @@ export function calculateAnalytics(
 
   // Extract top keywords
   const topKeywords = extractTopKeywords(filteredResponses)
+  const keywordCounts = extractKeywordCounts(filteredResponses)
+
+  // Calculate rating distribution
+  const ratingDistribution = {
+    1: filteredResponses.filter(r => r.rating === 1).length,
+    2: filteredResponses.filter(r => r.rating === 2).length,
+    3: filteredResponses.filter(r => r.rating === 3).length,
+    4: filteredResponses.filter(r => r.rating === 4).length,
+    5: filteredResponses.filter(r => r.rating === 5).length
+  }
 
   return {
     totalResponses,
@@ -44,7 +54,9 @@ export function calculateAnalytics(
     trends,
     recentResponses,
     responseRate,
-    topKeywords
+    topKeywords,
+    ratingDistribution,
+    keywordCounts
   }
 }
 
@@ -121,6 +133,16 @@ function calculateTrends(responses: RealtimeResponse[], days: number): Array<{
 }
 
 function extractTopKeywords(responses: RealtimeResponse[], limit: number = 10): string[] {
+  const keywordCounts = extractKeywordCounts(responses)
+  
+  // Sort by count and return top keywords
+  return Object.entries(keywordCounts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, limit)
+    .map(([keyword]) => keyword)
+}
+
+function extractKeywordCounts(responses: RealtimeResponse[]): { [key: string]: number } {
   const keywordCounts: { [key: string]: number } = {}
   
   responses.forEach(response => {
@@ -134,11 +156,7 @@ function extractTopKeywords(responses: RealtimeResponse[], limit: number = 10): 
     }
   })
 
-  // Sort by count and return top keywords
-  return Object.entries(keywordCounts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, limit)
-    .map(([keyword]) => keyword)
+  return keywordCounts
 }
 
 export function getDefaultFilters(): ResponseFilters {

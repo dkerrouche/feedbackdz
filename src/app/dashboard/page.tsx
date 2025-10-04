@@ -7,6 +7,7 @@ import BusinessProfile from '@/components/business/BusinessProfile'
 import SurveyGenerator from '@/components/survey/SurveyGenerator'
 import AnalyticsCards from '@/components/dashboard/AnalyticsCards'
 import ResponseFeed from '@/components/dashboard/ResponseFeed'
+import DashboardCharts from '@/components/dashboard/DashboardCharts'
 import { supabase } from '@/lib/supabase'
 import QrViewer from '@/components/survey/QrViewer'
 import { useRealtimeResponses } from '@/hooks/useRealtimeResponses'
@@ -270,6 +271,22 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
+
+              {/* Charts Section */}
+              <DashboardCharts 
+                analytics={analytics || {
+                  totalResponses: 0,
+                  averageRating: 0,
+                  sentimentBreakdown: { positive: 0, neutral: 0, negative: 0 },
+                  trends: [],
+                  recentResponses: [],
+                  responseRate: 0,
+                  topKeywords: [],
+                  ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+                  keywordCounts: {}
+                }}
+                loading={analyticsLoading}
+              />
 
               {/* Recent Responses */}
               <ResponseFeed 

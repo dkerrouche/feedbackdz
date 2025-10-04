@@ -153,6 +153,12 @@ export interface AnalyticsData {
   recentResponses: RealtimeResponse[]
   responseRate: number
   topKeywords: string[]
+  ratingDistribution: {
+    [key: number]: number
+  }
+  keywordCounts: {
+    [key: string]: number
+  }
 }
 
 export interface ResponseFilters {
