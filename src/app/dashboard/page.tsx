@@ -294,9 +294,14 @@ export default function Dashboard() {
               <ResponseFeed 
                 responses={responses}
                 loading={responsesLoading}
+                businessId={business?.id}
                 onResponseClick={(response) => {
                   console.log('Response clicked:', response)
                   // TODO: Open response detail modal
+                }}
+                onResponsesChange={() => {
+                  // Refresh responses when they change
+                  // The real-time hook will automatically update
                 }}
               />
             </>

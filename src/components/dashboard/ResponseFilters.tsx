@@ -12,7 +12,8 @@ import {
   Calendar,
   X,
   Mic,
-  MessageSquare
+  MessageSquare,
+  Download
 } from 'lucide-react';
 
 interface ResponseFiltersProps {
@@ -20,13 +21,15 @@ interface ResponseFiltersProps {
   onFiltersChange: (filters: FilterState) => void;
   totalResponses: number;
   filteredCount: number;
+  onExport?: () => void;
 }
 
 export default function ResponseFilters({
   filters,
   onFiltersChange,
   totalResponses,
-  filteredCount
+  filteredCount,
+  onExport
 }: ResponseFiltersProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -90,6 +93,16 @@ export default function ResponseFilters({
         </div>
         
         <div className="flex items-center space-x-2">
+          {onExport && (
+            <button
+              onClick={onExport}
+              className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              <span>Export CSV</span>
+            </button>
+          )}
+          
           {hasActiveFilters && (
             <button
               onClick={clearFilters}

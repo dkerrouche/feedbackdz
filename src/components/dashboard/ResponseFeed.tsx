@@ -7,17 +7,22 @@ import ResponseItem from './ResponseItem'
 import ResponseFiltersComponent from './ResponseFilters'
 import ResponseDetailModal from './ResponseDetailModal'
 import { filterResponses, getDefaultFilters, getFilteredCount } from '@/lib/response-filters'
+import { updateResponse, deleteResponse, exportResponses } from '@/lib/response-management'
 
 interface ResponseFeedProps {
   responses: RealtimeResponse[]
   loading?: boolean
   onResponseClick?: (response: RealtimeResponse) => void
+  businessId?: string
+  onResponsesChange?: () => void
 }
 
 export default function ResponseFeed({ 
   responses, 
   loading = false, 
-  onResponseClick 
+  onResponseClick,
+  businessId,
+  onResponsesChange
 }: ResponseFeedProps) {
   const [filters, setFilters] = useState<ResponseFilters>(getDefaultFilters())
   const [selectedResponse, setSelectedResponse] = useState<RealtimeResponse | null>(null)
@@ -26,19 +31,50 @@ export default function ResponseFeed({
   const filteredResponses = filterResponses(responses, filters)
   const filteredCount = getFilteredCount(responses, filters)
 
-  const handleMarkAddressed = (responseId: string) => {
-    // TODO: Implement API call to mark response as addressed
-    console.log('Mark as addressed:', responseId)
+  const handleMarkAddressed = async (responseId: string) => {
+    try {
+      await updateResponse(responseId, 'mark_addressed')
+      onResponsesChange?.()
+    } catch (error) {
+      console.error('Failed to mark response as addressed:', error)
+      // TODO: Show error toast
+    }
   }
 
-  const handleFlag = (responseId: string) => {
-    // TODO: Implement API call to flag response
-    console.log('Flag response:', responseId)
+  const handleFlag = async (responseId: string) => {
+    try {
+      await updateResponse(responseId, 'flag')
+      onResponsesChange?.()
+    } catch (error) {
+      console.error('Failed to flag response:', error)
+      // TODO: Show error toast
+    }
   }
 
-  const handleDelete = (responseId: string) => {
-    // TODO: Implement API call to delete response
-    console.log('Delete response:', responseId)
+  const handleDelete = async (responseId: string) => {
+    if (confirm('Are you sure you want to delete this response? This action cannot be undone.')) {
+      try {
+        await deleteResponse(responseId)
+        onResponsesChange?.()
+      } catch (error) {
+        console.error('Failed to delete response:', error)
+        // TODO: Show error toast
+      }
+    }
+  }
+
+  const handleExport = async () => {
+    if (!businessId) {
+      console.error('Business ID is required for export')
+      return
+    }
+
+    try {
+      await exportResponses(businessId, filters)
+    } catch (error) {
+      console.error('Failed to export responses:', error)
+      // TODO: Show error toast
+    }
   }
 
   const handleViewDetails = (response: RealtimeResponse) => {
@@ -91,6 +127,7 @@ export default function ResponseFeed({
         onFiltersChange={setFilters}
         totalResponses={responses.length}
         filteredCount={filteredCount}
+        onExport={handleExport}
       />
 
       {/* Responses List */}
