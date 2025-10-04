@@ -12,6 +12,8 @@
   - `auth/PhoneAuth.tsx`, `auth/ProtectedRoute.tsx`: Dev-only mock phone OTP and guard
   - `business/BusinessProfile.tsx`, `business/BusinessProfileForm.tsx`: Business profile load/create/update
   - `survey/SurveyGenerator.tsx`: Generate AI questions and create surveys
+  - `survey/UnifiedTextInput.tsx`: Chat-like text/voice input component
+  - `voice/VoiceRecorder.tsx`: Voice recording component with MediaRecorder API
 - `src/lib/`
   - `openai.ts`: GPT-4 integration with strict JSON parsing and AR/FR/EN defaults
   - `supabase.ts`: Browser client + admin factory
@@ -48,6 +50,8 @@
 - AI processing pipeline: Whisper transcription + GPT-4 sentiment analysis + keyword extraction
 - Background processing: Automatic AI processing after response submission
 - Voice integration: Voice recording fully integrated into public survey page
+- Unified input interface: Chat-like text/voice input combining both input methods seamlessly
+- Question type simplification: Removed voice/text distinction, all text questions support both input methods
 
 ### What's not implemented (gaps)
 - Real phone OTP authentication with Supabase (replace mock)

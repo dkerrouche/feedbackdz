@@ -32,6 +32,14 @@
 - Update response with `transcription`, `sentiment`, `keywords` ✅ **COMPLETED**
 - Acceptance: 30–60s voice results processed <10s for 30s audio ✅ **COMPLETED**
 
+#### 5.1) Unified Input Interface ✅ **COMPLETED**
+- Chat-like text/voice input combining both input methods ✅ **COMPLETED**
+- Question type simplification: removed voice/text distinction ✅ **COMPLETED**
+- AI generation update: only rating + text questions ✅ **COMPLETED**
+- Survey generator update: unified input approach ✅ **COMPLETED**
+- Component architecture: UnifiedTextInput with modern UX ✅ **COMPLETED**
+- Acceptance: Seamless text/voice experience like chat apps ✅ **COMPLETED**
+
 #### 6) Dashboard enhancements
 - List real surveys from DB; link to QR view/download
 - Recent responses feed with transcription/sentiment
@@ -76,5 +84,6 @@
 - M1: Auth + QR assets + public survey (text) live ✅ **COMPLETED**
 - M2: Responses in DB + dashboard metrics + realtime
 - M3: Voice + transcription + sentiment/keywords ✅ **COMPLETED**
+- M3.1: Unified input interface + question simplification ✅ **COMPLETED**
 - M4: Admin basics + daily summaries + exports
 
