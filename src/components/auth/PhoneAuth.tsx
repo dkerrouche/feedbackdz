@@ -57,12 +57,12 @@ export default function PhoneAuth({ onSuccess }: PhoneAuthProps) {
 
   if (step === 'phone') {
     return (
-      <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Sign In</h2>
+      <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+        <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">Sign In</h2>
         
         <form onSubmit={handleSendOTP} className="space-y-4">
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="phone" className="block text-sm font-semibold text-gray-900 mb-2">
               Phone Number
             </label>
             <input
@@ -71,19 +71,19 @@ export default function PhoneAuth({ onSuccess }: PhoneAuthProps) {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+213 123 456 789"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 placeholder:text-gray-400 text-gray-900"
               required
             />
           </div>
           
           {error && (
-            <div className="text-red-600 text-sm">{error}</div>
+            <div className="text-red-800 text-sm">{error}</div>
           )}
           
           <button
             type="submit"
             disabled={loading || !phone}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             {loading ? 'Sending...' : 'Send OTP'}
           </button>
@@ -93,12 +93,12 @@ export default function PhoneAuth({ onSuccess }: PhoneAuthProps) {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-center mb-6">Verify OTP</h2>
+    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+      <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">Verify OTP</h2>
       
       <form onSubmit={handleVerifyOTP} className="space-y-4">
         <div>
-          <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="otp" className="block text-sm font-semibold text-gray-900 mb-2">
             Enter 6-digit code sent to {phone}
           </label>
           <input
@@ -107,20 +107,20 @@ export default function PhoneAuth({ onSuccess }: PhoneAuthProps) {
             value={otp}
             onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
             placeholder="123456"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-lg tracking-widest"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-center text-lg tracking-widest placeholder:text-gray-400 text-gray-900"
             maxLength={6}
             required
           />
         </div>
         
         {error && (
-          <div className="text-red-600 text-sm">{error}</div>
+          <div className="text-red-800 text-sm">{error}</div>
         )}
         
         <button
           type="submit"
           disabled={loading || otp.length !== 6}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
         >
           {loading ? 'Verifying...' : 'Verify OTP'}
         </button>
@@ -128,7 +128,7 @@ export default function PhoneAuth({ onSuccess }: PhoneAuthProps) {
         <button
           type="button"
           onClick={() => setStep('phone')}
-          className="w-full text-gray-600 py-2 px-4 rounded-md hover:text-gray-800"
+          className="w-full text-gray-900 py-2 px-4 rounded-lg hover:bg-gray-100 border border-gray-200 mt-2"
         >
           Change phone number
         </button>
