@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { RealtimeResponse, ResponseFilters } from '@/types'
 import { FileText } from 'lucide-react'
 import ResponseItem from './ResponseItem'
-import ResponseFilters as ResponseFiltersComponent from './ResponseFilters'
+import ResponseFiltersComponent from './ResponseFilters'
 import ResponseDetailModal from './ResponseDetailModal'
 import { filterResponses, getDefaultFilters, getFilteredCount } from '@/lib/response-filters'
 
