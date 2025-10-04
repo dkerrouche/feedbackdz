@@ -12,8 +12,9 @@
   - `auth/PhoneAuth.tsx`, `auth/ProtectedRoute.tsx`: Dev-only mock phone OTP and guard
   - `business/BusinessProfile.tsx`, `business/BusinessProfileForm.tsx`: Business profile load/create/update
   - `survey/SurveyGenerator.tsx`: Generate AI questions and create surveys
-  - `survey/UnifiedTextInput.tsx`: Chat-like text/voice input component
-  - `voice/VoiceRecorder.tsx`: Voice recording component with MediaRecorder API
+  - `survey/UnifiedTextInput.tsx`: Chat-like text/voice input component with Lucide icons
+  - `voice/VoiceRecorder.tsx`: Voice recording component with MediaRecorder API and Lucide icons
+  - `dashboard/AnalyticsCards.tsx`, `dashboard/ResponseFeed.tsx`: Dashboard components with Lucide icons
 - `src/lib/`
   - `openai.ts`: GPT-4 integration with strict JSON parsing and AR/FR/EN defaults
   - `supabase.ts`: Browser client + admin factory
@@ -56,6 +57,7 @@
 - Audio playback interface: Built-in HTML5 audio player with preview before submission
 - Direct recording flow: Click mic starts recording immediately with trash cancel button
 - UX improvements: Bottom-right mic icon, replacement mode, seamless audio/text switching
+- Professional icon system: Replaced all emoji icons with Lucide React icons for better UI consistency
 
 ### What's not implemented (gaps)
 - Real phone OTP authentication with Supabase (replace mock)
