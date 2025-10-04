@@ -99,7 +99,9 @@ export default function Dashboard() {
         trends: [],
         recentResponses: [],
         responseRate: 0,
-        topKeywords: []
+        topKeywords: [],
+        ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+        keywordCounts: {}
       })
     }
   }, [responses, responsesLoading])
