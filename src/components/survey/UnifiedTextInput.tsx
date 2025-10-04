@@ -28,7 +28,11 @@ export default function UnifiedTextInput({
   const [hasAudio, setHasAudio] = useState(false)
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false)
   const [recordingTime, setRecordingTime] = useState(0)
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const timerRef = useRef<NodeJS.Timeout | null>(null)
@@ -36,6 +40,8 @@ export default function UnifiedTextInput({
 
   const handleVoiceRecording = useCallback((audioBlob: Blob) => {
     setHasAudio(true)
+    setAudioBlob(audioBlob)
+    setAudioUrl(URL.createObjectURL(audioBlob))
     onAudioRecorded(audioBlob)
     setShowVoiceRecorder(false)
     setIsRecording(false)
@@ -166,8 +172,29 @@ export default function UnifiedTextInput({
 
   const clearAudio = useCallback(() => {
     setHasAudio(false)
+    setAudioBlob(null)
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl)
+      setAudioUrl(null)
+    }
     onAudioRecorded(new Blob()) // Empty blob to clear
-  }, [onAudioRecorded])
+  }, [onAudioRecorded, audioUrl])
+
+  const playAudio = useCallback(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause()
+        setIsPlaying(false)
+      } else {
+        audioRef.current.play()
+        setIsPlaying(true)
+      }
+    }
+  }, [isPlaying])
+
+  const handleAudioEnded = useCallback(() => {
+    setIsPlaying(false)
+  }, [])
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -192,8 +219,11 @@ export default function UnifiedTextInput({
       if (timerRef.current) {
         clearInterval(timerRef.current)
       }
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl)
+      }
     }
-  }, [])
+  }, [audioUrl])
 
   return (
     <div className={`space-y-3 ${className}`}>
@@ -279,19 +309,60 @@ export default function UnifiedTextInput({
           </div>
         )}
 
-        {/* Audio Status (shown when not recording and has audio) */}
+        {/* Audio Playback Interface (shown when audio is recorded) */}
         {hasAudio && !showVoiceRecorder && (
-          <div className="mt-2 flex items-center justify-between p-2 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-center space-x-2">
-              <span className="text-green-600 text-sm">🎤 Voice recorded</span>
+          <div className="mt-2 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="text-center">
+              <div className="mb-3">
+                <div className="w-12 h-12 mx-auto bg-green-500 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-white text-xl">🎤</span>
+                </div>
+                <p className="text-sm text-green-700 font-medium">Audio recorded successfully!</p>
+              </div>
+
+              {/* Audio Player */}
+              <div className="mb-4">
+                <audio
+                  ref={audioRef}
+                  src={audioUrl || undefined}
+                  onEnded={handleAudioEnded}
+                  className="w-full"
+                  controls
+                >
+                  Your browser does not support the audio element.
+                </audio>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-center space-x-3">
+                <button
+                  type="button"
+                  onClick={playAudio}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium flex items-center space-x-1"
+                >
+                  <span>{isPlaying ? '⏸️' : '▶️'}</span>
+                  <span>{isPlaying ? 'Pause' : 'Play'}</span>
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={startRecording}
+                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm font-medium flex items-center space-x-1"
+                >
+                  <span>🔄</span>
+                  <span>Record Again</span>
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={clearAudio}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-medium flex items-center space-x-1"
+                >
+                  <span>🗑️</span>
+                  <span>Clear</span>
+                </button>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={clearAudio}
-              className="text-green-600 hover:text-green-800 text-sm font-medium"
-            >
-              Clear
-            </button>
           </div>
         )}
       </div>
@@ -299,10 +370,10 @@ export default function UnifiedTextInput({
       {/* Helper Text */}
       <div className="flex items-center justify-between text-xs text-gray-500">
         <span>
-          {required ? 'Required' : 'Optional'} • Type or record voice
+          {required ? 'Required' : 'Optional'} • {hasAudio ? 'Audio response recorded' : 'Type or record voice'}
         </span>
         <span>
-          {value.length > 0 && `${value.length} characters`}
+          {hasAudio ? 'Audio mode' : value.length > 0 && `${value.length} characters`}
         </span>
       </div>
     </div>
