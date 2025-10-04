@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import VoiceRecorder from '@/components/voice/VoiceRecorder'
+import { Mic } from 'lucide-react'
 
 interface UnifiedTextInputProps {
   questionText: string
@@ -257,7 +258,7 @@ export default function UnifiedTextInput({
               className="absolute right-3 bottom-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 cursor-pointer"
               title="Record voice"
             >
-              🎤
+<Mic className="w-4 h-4" />
             </button>
           </div>
         ) : showVoiceRecorder ? (
@@ -267,7 +268,7 @@ export default function UnifiedTextInput({
               {/* Recording Status */}
               <div className="mb-4">
                 <div className="w-16 h-16 mx-auto bg-red-500 rounded-full flex items-center justify-center animate-pulse">
-                  <span className="text-white text-2xl">🎤</span>
+                  <Mic className="w-8 h-8 text-white" />
                 </div>
                 <p className="text-sm text-red-700 mt-2 font-medium">
                   Recording... {formatTime(recordingTime)}
@@ -312,7 +313,7 @@ export default function UnifiedTextInput({
             <div className="text-center">
               <div className="mb-3">
                 <div className="w-12 h-12 mx-auto bg-green-500 rounded-full flex items-center justify-center mb-2">
-                  <span className="text-white text-xl">🎤</span>
+                  <Mic className="w-6 h-6 text-white" />
                 </div>
                 <p className="text-sm text-green-700 font-medium">Audio recorded successfully!</p>
               </div>

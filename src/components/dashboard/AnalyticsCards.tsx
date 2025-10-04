@@ -1,6 +1,7 @@
 'use client'
 
 import { AnalyticsData } from '@/types'
+import { BarChart3, Star, TrendingUp, Smile } from 'lucide-react'
 
 interface AnalyticsCardsProps {
   analytics: AnalyticsData
@@ -41,7 +42,7 @@ export default function AnalyticsCards({ analytics, loading = false }: Analytics
             <p className="text-sm text-gray-700">All time</p>
           </div>
           <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-            <span className="text-2xl">📊</span>
+            <BarChart3 className="w-6 h-6 text-blue-600" />
           </div>
         </div>
       </div>
@@ -59,7 +60,7 @@ export default function AnalyticsCards({ analytics, loading = false }: Analytics
             <p className="text-sm text-gray-700">Out of 5 stars</p>
           </div>
           <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-            <span className="text-2xl">⭐</span>
+            <Star className="w-6 h-6 text-green-600" />
           </div>
         </div>
       </div>
@@ -77,7 +78,7 @@ export default function AnalyticsCards({ analytics, loading = false }: Analytics
             <p className="text-sm text-gray-700">QR scans to completion</p>
           </div>
           <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-            <span className="text-2xl">📈</span>
+            <TrendingUp className="w-6 h-6 text-purple-600" />
           </div>
         </div>
       </div>
@@ -111,7 +112,7 @@ export default function AnalyticsCards({ analytics, loading = false }: Analytics
             </div>
           </div>
           <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-            <span className="text-2xl">😊</span>
+            <Smile className="w-6 h-6 text-orange-600" />
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { Mic, Square } from 'lucide-react'
 
 interface VoiceRecorderProps {
   onRecordingComplete: (audioBlob: Blob) => void
@@ -180,7 +181,7 @@ export default function VoiceRecorder({
           } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           title={isRecording ? 'Release to stop recording' : 'Hold to record'}
         >
-          {isRecording ? '⏹️' : '🎤'}
+{isRecording ? <Square className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
         </button>
         
         {isRecording && (

@@ -2,6 +2,7 @@
 
 import { RealtimeResponse } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
+import { FileText, Mic, Star } from 'lucide-react'
 
 interface ResponseFeedProps {
   responses: RealtimeResponse[]
@@ -37,7 +38,7 @@ export default function ResponseFeed({
         <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Responses</h3>
         <div className="text-center py-8 text-gray-700">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl">📝</span>
+            <FileText className="w-8 h-8 text-gray-600" />
           </div>
           <p>No responses yet. Share your QR code to start collecting feedback!</p>
         </div>
@@ -74,8 +75,9 @@ export default function ResponseFeed({
                 <div className={`px-2 py-1 rounded-full text-xs font-medium border ${getSentimentColor(response.sentiment)}`}>
                   {response.sentiment}
                 </div>
-                <div className={`text-lg font-bold ${getRatingColor(response.rating)}`}>
-                  {response.rating}⭐
+                <div className={`flex items-center space-x-1 text-lg font-bold ${getRatingColor(response.rating)}`}>
+                  <span>{response.rating}</span>
+                  <Star className="w-4 h-4 fill-current" />
                 </div>
               </div>
               <div className="text-sm text-gray-500">
@@ -112,7 +114,7 @@ export default function ResponseFeed({
                 <span>Language: {response.language || 'Unknown'}</span>
                 {response.audio_url && (
                   <span className="flex items-center space-x-1">
-                    <span>🎤</span>
+                    <Mic className="w-3 h-3" />
                     <span>Voice</span>
                   </span>
                 )}

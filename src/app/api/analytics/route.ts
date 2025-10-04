@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
         : null
     }
 
-    console.log('📊 Fetching analytics for business:', businessId, 'with filters:', filters)
+    console.log('Analytics: Fetching analytics for business:', businessId, 'with filters:', filters)
 
     // Fetch responses for the business
     const { data: responses, error } = await supabaseServer

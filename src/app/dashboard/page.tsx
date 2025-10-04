@@ -12,6 +12,7 @@ import QrViewer from '@/components/survey/QrViewer'
 import { useRealtimeResponses } from '@/hooks/useRealtimeResponses'
 import { calculateAnalytics, getDefaultFilters } from '@/lib/analytics'
 import { Business, AnalyticsData, RealtimeResponse } from '@/types'
+import { AlertTriangle, CheckCircle } from 'lucide-react'
 
 export default function Dashboard() {
   const [business, setBusiness] = useState<Business | null>(null)
@@ -202,7 +203,7 @@ export default function Dashboard() {
               {responsesError && (
                 <div className="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
                   <div className="flex items-center space-x-2">
-                    <span>⚠️</span>
+                    <AlertTriangle className="w-4 h-4" />
                     <span>Connection error: {responsesError}</span>
                   </div>
                 </div>
@@ -211,7 +212,7 @@ export default function Dashboard() {
               {isConnected && (
                 <div className="mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
                   <div className="flex items-center space-x-2">
-                    <span>🟢</span>
+                    <CheckCircle className="w-4 h-4" />
                     <span>Real-time updates active</span>
                   </div>
                 </div>
