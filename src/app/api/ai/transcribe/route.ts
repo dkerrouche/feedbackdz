@@ -43,8 +43,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('🎤 Starting transcription for response:', body.responseId)
-    console.log('🔗 Audio URL:', body.audioUrl)
+    console.log('Audio: Starting transcription for response:', body.responseId)
+    console.log('URL: Audio URL:', body.audioUrl)
 
     // Download audio file from URL
     const audioResponse = await fetch(body.audioUrl)

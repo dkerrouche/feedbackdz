@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('📝 Creating survey for business:', body.business_id)
+    console.log('Survey: Creating survey for business:', body.business_id)
     
     // Create survey in database
     const { data, error } = await supabase

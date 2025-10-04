@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import VoiceRecorder from '@/components/voice/VoiceRecorder'
-import { Mic } from 'lucide-react'
+import { Mic, Trash2, Play, Pause, RotateCcw } from 'lucide-react'
 
 interface UnifiedTextInputProps {
   questionText: string
@@ -299,7 +299,7 @@ export default function UnifiedTextInput({
                   className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-medium flex items-center space-x-1"
                   title="Cancel recording"
                 >
-                  <span>🗑️</span>
+                  <Trash2 className="w-4 h-4" />
                   <span>Cancel</span>
                 </button>
               </div>
@@ -338,7 +338,7 @@ export default function UnifiedTextInput({
                   onClick={playAudio}
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium flex items-center space-x-1"
                 >
-                  <span>{isPlaying ? '⏸️' : '▶️'}</span>
+                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                   <span>{isPlaying ? 'Pause' : 'Play'}</span>
                 </button>
                 
@@ -347,7 +347,7 @@ export default function UnifiedTextInput({
                   onClick={startRecording}
                   className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm font-medium flex items-center space-x-1"
                 >
-                  <span>🔄</span>
+                  <RotateCcw className="w-4 h-4" />
                   <span>Record Again</span>
                 </button>
                 
@@ -356,7 +356,7 @@ export default function UnifiedTextInput({
                   onClick={clearAudio}
                   className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-medium flex items-center space-x-1"
                 >
-                  <span>🗑️</span>
+                  <Trash2 className="w-4 h-4" />
                   <span>Clear</span>
                 </button>
               </div>

@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('🧠 Starting analysis for response:', body.responseId)
-    console.log('📝 Text length:', body.text.length, 'characters')
+    console.log('AI: Starting analysis for response:', body.responseId)
+    console.log('Text: Text length:', body.text.length, 'characters')
 
     // Create analysis prompt
     const language = body.language || 'auto'

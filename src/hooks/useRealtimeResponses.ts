@@ -73,7 +73,7 @@ export function useRealtimeResponses({
           filter: `business_id=eq.${businessId}`
         },
         (payload) => {
-          console.log('🔄 New response received:', payload.new)
+          console.log('Realtime: New response received:', payload.new)
           const newResponse = payload.new as RealtimeResponse
           setResponses(prev => [newResponse, ...prev])
         }
@@ -87,7 +87,7 @@ export function useRealtimeResponses({
           filter: `business_id=eq.${businessId}`
         },
         (payload) => {
-          console.log('🔄 Response updated:', payload.new)
+          console.log('Realtime: Response updated:', payload.new)
           const updatedResponse = payload.new as RealtimeResponse
           setResponses(prev => 
             prev.map(response => 
@@ -105,7 +105,7 @@ export function useRealtimeResponses({
           filter: `business_id=eq.${businessId}`
         },
         (payload) => {
-          console.log('🔄 Response deleted:', payload.old)
+          console.log('Realtime: Response deleted:', payload.old)
           const deletedResponse = payload.old as RealtimeResponse
           setResponses(prev => 
             prev.filter(response => response.id !== deletedResponse.id)

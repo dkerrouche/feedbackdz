@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
 // Background processing function
 async function processAudioInBackground(responseId: string, audioUrl: string, text: string) {
   try {
-    console.log('🔄 Starting background processing for response:', responseId)
+    console.log('Background: Starting processing for response:', responseId)
     
     // Transcribe audio
     const transcribeResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/ai/transcribe`, {
@@ -71,9 +71,9 @@ async function processAudioInBackground(responseId: string, audioUrl: string, te
     
     if (transcribeData.success && transcribeData.transcription) {
       transcription = transcribeData.transcription
-      console.log('✅ Transcription completed:', transcription.substring(0, 100) + '...')
+      console.log('Success: Transcription completed:', transcription.substring(0, 100) + '...')
     } else {
-      console.warn('⚠️ Transcription failed:', transcribeData.error)
+      console.warn('Warning: Transcription failed:', transcribeData.error)
     }
     
     // Analyze sentiment and extract keywords
@@ -96,9 +96,9 @@ async function processAudioInBackground(responseId: string, audioUrl: string, te
       sentiment = analyzeData.sentiment || 'neutral'
       sentimentScore = analyzeData.sentimentScore || 0.5
       keywords = analyzeData.keywords || []
-      console.log('✅ Analysis completed:', { sentiment, sentimentScore, keywords })
+      console.log('Success: Analysis completed:', { sentiment, sentimentScore, keywords })
     } else {
-      console.warn('⚠️ Analysis failed:', analyzeData.error)
+      console.warn('Warning: Analysis failed:', analyzeData.error)
     }
     
     // Update response with processed data
