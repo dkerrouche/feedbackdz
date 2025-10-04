@@ -30,24 +30,27 @@
 - `src/lib/openai.ts`: Prompt, parsing, and fallbacks for question generation
 - `database/schema.sql`: Canonical data model + RLS policies + seed
 
-### What’s implemented (working paths)
+### What's implemented (working paths)
 - Next.js 14 + TS + Tailwind base UI with layout and landing page
 - Supabase client setup (browser + server/service role)
 - Database schema with tables, indexes, triggers, RLS, and sample business/survey
-- Dev “auth” via localStorage in `ProtectedRoute` and mock OTP UI
+- Dev "auth" via localStorage in `ProtectedRoute` and mock OTP UI
 - Business profile creation/update and render (uses fixed dev phone `+213123456789`)
 - AI survey question generation via GPT-4 (AR/FR/EN) with strict JSON handling and fallbacks
 - Survey persistence: API to create and list surveys; dashboard flow wires generation → creation
 - QR preview + PNG/SVG download in dashboard via `QrViewer` and `utils/qr`
 - Dashboard UI with Overview, Business Profile, and Create Survey tabs (analytics placeholders)
 - Style guide added at `specs/guide_style.md`; components restyled for contrast
- - Public survey flow: `/s/{qr_code}` page for rating + text; public APIs to fetch survey and submit responses
+- Public survey flow: `/s/{qr_code}` page for rating + text; public APIs to fetch survey and submit responses
 - Survey fixes: proper question ordering, independent rating handling, dashboard loads existing surveys
+- Voice recording system: MediaRecorder API with WebM/Opus support, mobile-optimized
+- Supabase Storage: Audio file upload with proper policies and public URLs
+- AI processing pipeline: Whisper transcription + GPT-4 sentiment analysis + keyword extraction
+- Background processing: Automatic AI processing after response submission
+- Voice integration: Voice recording fully integrated into public survey page
 
-### What’s not implemented (gaps)
+### What's not implemented (gaps)
 - Real phone OTP authentication with Supabase (replace mock)
-- Public customer-facing survey page (QR landing) and response submission
-- Voice recording/upload, Whisper transcription, sentiment and keyword pipelines
 - Realtime updates (Supabase Realtime), charts/analytics, filters/search, exports
 - Admin panel (user management, platform monitoring), daily summaries cron + email
 - Full i18n for UI (beyond generated questions)
@@ -61,19 +64,11 @@
 
 ### Next steps (prioritized)
 1. Replace mock auth with Supabase OTP and user session handling; remove localStorage gate.
-2. Implement survey QR code assets:
-   - Generate QR (PNG/SVG), preview, and download from `dashboard/page.tsx`.
-3. Build customer-facing survey route:
-   - `GET /api/surveys/{qr_code}` public fetch + public PWA page to answer survey.
-4. Response collection:
-   - Submit rating + text; store in `responses`; wire confirmation page.
-5. Voice pipeline (MVP):
-   - Client recording (MediaRecorder), upload to Supabase Storage, create response with `audio_url`, async job for Whisper + sentiment/keywords, update response.
-6. Dashboard basics:
+2. Dashboard basics:
    - List real surveys from DB for the business; simple metrics from `responses` with indexes.
-7. Realtime:
+3. Realtime:
    - Subscribe to `responses` by `business_id` to update dashboard feed.
-8. Polish:
+4. Polish:
    - Error states, i18n toggle for UI, minimal charts, CSV export.
 
 ### Assumptions for current dev mode

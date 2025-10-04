@@ -25,12 +25,12 @@
 - Store `ip_address` and `user_agent`; basic rate limit — PARTIAL (stored; rate limit pending)
 - Acceptance: Responses visible in DB; minimal spam control — PARTIAL
 
-#### 5) Voice pipeline (MVP)
-- Client: MediaRecorder capture (WebM/Opus), size <1MB, retry
-- Upload: Supabase Storage; create response with `audio_url`
-- Background jobs: Whisper transcription → GPT sentiment/keywords
-- Update response with `transcription`, `sentiment`, `keywords`
-- Acceptance: 30–60s voice results processed <10s for 30s audio
+#### 5) Voice pipeline (MVP) ✅ **COMPLETED**
+- Client: MediaRecorder capture (WebM/Opus), size <1MB, retry ✅ **COMPLETED**
+- Upload: Supabase Storage; create response with `audio_url` ✅ **COMPLETED**
+- Background jobs: Whisper transcription → GPT sentiment/keywords ✅ **COMPLETED**
+- Update response with `transcription`, `sentiment`, `keywords` ✅ **COMPLETED**
+- Acceptance: 30–60s voice results processed <10s for 30s audio ✅ **COMPLETED**
 
 #### 6) Dashboard enhancements
 - List real surveys from DB; link to QR view/download
@@ -73,8 +73,8 @@
 - OpenAI cost/latency → cache, batch, exponential backoff
 
 ### Milestones
-- M1: Auth + QR assets + public survey (text) live
+- M1: Auth + QR assets + public survey (text) live ✅ **COMPLETED**
 - M2: Responses in DB + dashboard metrics + realtime
-- M3: Voice + transcription + sentiment/keywords
+- M3: Voice + transcription + sentiment/keywords ✅ **COMPLETED**
 - M4: Admin basics + daily summaries + exports
 

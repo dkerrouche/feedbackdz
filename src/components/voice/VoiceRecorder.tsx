@@ -173,10 +173,10 @@ export default function VoiceRecorder({
           onTouchStart={startRecording}
           onTouchEnd={stopRecording}
           disabled={disabled}
-          className={`w-20 h-20 rounded-full flex items-center justify-center text-white font-bold text-lg transition-all duration-200 shadow-lg ${
+          className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-medium text-sm transition-all duration-200 shadow-md border-2 ${
             isRecording
-              ? 'bg-red-600 hover:bg-red-700 scale-110 animate-pulse'
-              : 'bg-blue-600 hover:bg-blue-700 hover:scale-105'
+              ? 'bg-red-500 hover:bg-red-600 border-red-600 scale-105 animate-pulse'
+              : 'bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 border-blue-600 hover:scale-105'
           } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           title={isRecording ? 'Release to stop recording' : 'Hold to record'}
         >
@@ -184,13 +184,13 @@ export default function VoiceRecorder({
         </button>
         
         {isRecording && (
-          <div className="mt-3">
-            <p className="text-sm text-gray-600 font-medium">
+          <div className="mt-2">
+            <p className="text-xs text-gray-600 font-medium">
               Recording... {formatTime(recordingTime)}
             </p>
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1.5">
               <div 
-                className="bg-red-600 h-2 rounded-full transition-all duration-1000"
+                className="bg-red-500 h-1.5 rounded-full transition-all duration-1000"
                 style={{ width: `${(recordingTime / maxDuration) * 100}%` }}
               />
             </div>
@@ -201,7 +201,7 @@ export default function VoiceRecorder({
         )}
         
         {!isRecording && !audioBlob && (
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-xs text-gray-500 mt-1">
             Hold the microphone button to record
           </p>
         )}
@@ -223,7 +223,7 @@ export default function VoiceRecorder({
             <button
               type="button"
               onClick={resetRecording}
-              className="bg-gray-100 text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-200 text-sm font-medium"
+              className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-200 text-xs font-medium border border-gray-200 transition-colors"
             >
               Record Again
             </button>
