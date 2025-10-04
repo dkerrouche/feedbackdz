@@ -162,12 +162,14 @@ export interface AnalyticsData {
 }
 
 export interface ResponseFilters {
+  search: string
+  rating: number | null
+  sentiment: string | null
   dateRange: {
     start: string
     end: string
-  }
-  ratingFilter: number[] | null
-  sentimentFilter: string[] | null
-  searchQuery: string
-  surveyFilter: string[] | null
+  } | null
+  hasAudio: boolean | null
+  isFlagged: boolean | null
+  isAddressed: boolean | null
 }
