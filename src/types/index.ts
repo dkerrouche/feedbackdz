@@ -33,7 +33,7 @@ export interface Survey {
 }
 
 export interface Question {
-  type: 'rating' | 'text' | 'voice'
+  type: 'rating' | 'text'
   text: string
   required: boolean
   options?: string[]

@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import VoiceRecorder from '@/components/voice/VoiceRecorder'
+import UnifiedTextInput from '@/components/survey/UnifiedTextInput'
 import { uploadAudioFile } from '@/lib/audio/upload'
 
 interface SurveyQuestion {
-  type: 'rating' | 'text' | 'voice'
+  type: 'rating' | 'text'
   text: string
   required: boolean
 }
@@ -46,6 +46,13 @@ export default function PublicSurveyPage() {
     setAudioByIndex(prev => ({
       ...prev,
       [questionIndex]: audioBlob
+    }))
+  }
+
+  const handleTextChange = (questionIndex: number, text: string) => {
+    setAnswersByIndex(prev => ({
+      ...prev,
+      [questionIndex]: text
     }))
   }
 
@@ -176,35 +183,16 @@ export default function PublicSurveyPage() {
                     ))}
                   </div>
                 </>
-              ) : q.type === 'voice' ? (
-                <>
-                  <p className="text-sm font-semibold text-gray-900 mb-2">{q.text || 'Record your feedback'}</p>
-                  <VoiceRecorder
-                    onRecordingComplete={(audioBlob) => handleVoiceRecording(idx, audioBlob)}
-                    onError={(error) => setError(error)}
-                    disabled={submitting || processingAudio}
-                    maxDuration={60}
-                    className="mb-4"
-                  />
-                  <textarea
-                    value={answersByIndex[idx] || ''}
-                    onChange={(e) => setAnswersByIndex((prev) => ({ ...prev, [idx]: e.target.value }))}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 placeholder:text-gray-400 text-gray-900"
-                    placeholder="Or type your feedback here (optional)"
-                  />
-                </>
               ) : (
-                <>
-                  <p className="text-sm font-semibold text-gray-900 mb-2">{q.text || 'Your answer'}</p>
-                  <textarea
-                    value={answersByIndex[idx] || ''}
-                    onChange={(e) => setAnswersByIndex((prev) => ({ ...prev, [idx]: e.target.value }))}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 placeholder:text-gray-400 text-gray-900"
-                    placeholder="Type here (optional)"
-                  />
-                </>
+                <UnifiedTextInput
+                  questionText={q.text || 'Your answer'}
+                  value={answersByIndex[idx] || ''}
+                  onChange={(text) => handleTextChange(idx, text)}
+                  onAudioRecorded={(audioBlob) => handleVoiceRecording(idx, audioBlob)}
+                  placeholder="Type your message or record voice..."
+                  required={q.required}
+                  disabled={submitting || processingAudio}
+                />
               )}
             </div>
           ))}

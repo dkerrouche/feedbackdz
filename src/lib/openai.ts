@@ -6,7 +6,7 @@ const openai = new OpenAI({
 })
 
 export interface SurveyQuestion {
-  type: 'rating' | 'text' | 'voice'
+  type: 'rating' | 'text'
   text: string
   required: boolean
 }
@@ -89,7 +89,8 @@ Requirements:
 - ${languageInstructions[request.language]}
 - Questions should be simple and easy to understand
 - First question should be a rating (1-5 stars)
-- Second and third questions should be open-ended (text/voice)
+- Second and third questions should be open-ended text questions
+- All text questions support both typing and voice recording
 - Questions should be relevant to restaurant experience
 - Keep questions short (max 10 words each)
 
@@ -106,7 +107,7 @@ Return ONLY a JSON array with this exact format:
     "required": false
   },
   {
-    "type": "voice",
+    "type": "text",
     "text": "What can we improve?",
     "required": false
   }
@@ -155,7 +156,7 @@ function getDefaultQuestions(language: 'ar' | 'fr' | 'en'): SurveyQuestion[] {
         required: false
       },
       {
-        type: 'voice' as const,
+        type: 'text' as const,
         text: 'ما الذي يمكننا تحسينه؟',
         required: false
       }
@@ -172,7 +173,7 @@ function getDefaultQuestions(language: 'ar' | 'fr' | 'en'): SurveyQuestion[] {
         required: false
       },
       {
-        type: 'voice' as const,
+        type: 'text' as const,
         text: 'Que pouvons-nous améliorer ?',
         required: false
       }
@@ -189,7 +190,7 @@ function getDefaultQuestions(language: 'ar' | 'fr' | 'en'): SurveyQuestion[] {
         required: false
       },
       {
-        type: 'voice' as const,
+        type: 'text' as const,
         text: 'What can we improve?',
         required: false
       }

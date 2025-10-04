@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
             required: false
           },
           {
-            type: 'voice',
+            type: 'text',
             text: 'What can we improve?',
             required: false
           }

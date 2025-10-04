@@ -179,8 +179,7 @@ export default function SurveyGenerator({ business, onSurveyCreated, onCancel }:
                     className="text-sm border border-gray-300 rounded px-2 py-1 text-gray-900"
                   >
                     <option value="rating">Rating (Stars)</option>
-                    <option value="text">Text Input</option>
-                    <option value="voice">Voice Recording</option>
+                    <option value="text">Text Input (with voice)</option>
                   </select>
                 </div>
                 
