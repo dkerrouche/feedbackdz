@@ -117,3 +117,51 @@ export interface DashboardState {
   loading: boolean
   error: string | null
 }
+
+// Analytics Types
+export interface RealtimeResponse {
+  id: string
+  survey_id: string
+  business_id: string
+  rating: number
+  sentiment: string
+  sentiment_score: number
+  transcription: string
+  audio_url: string | null
+  keywords: string[]
+  language: string
+  ip_address: string
+  user_agent: string
+  created_at: string
+  processed_at: string | null
+  is_spam: boolean
+}
+
+export interface AnalyticsData {
+  totalResponses: number
+  averageRating: number
+  sentimentBreakdown: {
+    positive: number
+    neutral: number
+    negative: number
+  }
+  trends: {
+    date: string
+    responses: number
+    averageRating: number
+  }[]
+  recentResponses: RealtimeResponse[]
+  responseRate: number
+  topKeywords: string[]
+}
+
+export interface ResponseFilters {
+  dateRange: {
+    start: string
+    end: string
+  }
+  ratingFilter: number[] | null
+  sentimentFilter: string[] | null
+  searchQuery: string
+  surveyFilter: string[] | null
+}

@@ -5,15 +5,32 @@ import Layout from '@/components/Layout'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import BusinessProfile from '@/components/business/BusinessProfile'
 import SurveyGenerator from '@/components/survey/SurveyGenerator'
+import AnalyticsCards from '@/components/dashboard/AnalyticsCards'
+import ResponseFeed from '@/components/dashboard/ResponseFeed'
 import { supabase } from '@/lib/supabase'
 import QrViewer from '@/components/survey/QrViewer'
-import { Business } from '@/types'
+import { useRealtimeResponses } from '@/hooks/useRealtimeResponses'
+import { calculateAnalytics, getDefaultFilters } from '@/lib/analytics'
+import { Business, AnalyticsData, RealtimeResponse } from '@/types'
 
 export default function Dashboard() {
   const [business, setBusiness] = useState<Business | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'create-survey'>('overview')
   const [surveys, setSurveys] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState(false)
+
+  // Real-time responses hook
+  const {
+    responses,
+    loading: responsesLoading,
+    error: responsesError,
+    isConnected
+  } = useRealtimeResponses({ 
+    businessId: business?.id || null,
+    enabled: activeTab === 'overview'
+  })
 
   useEffect(() => {
     loadBusinessProfile()
@@ -65,6 +82,25 @@ export default function Dashboard() {
       loadSurveys(business.id)
     }
   }, [business?.id])
+
+  // Calculate analytics when responses change
+  useEffect(() => {
+    if (responses.length > 0) {
+      const calculatedAnalytics = calculateAnalytics(responses, getDefaultFilters())
+      setAnalytics(calculatedAnalytics)
+    } else if (responses.length === 0 && !responsesLoading) {
+      // Reset analytics when no responses
+      setAnalytics({
+        totalResponses: 0,
+        averageRating: 0,
+        sentimentBreakdown: { positive: 0, neutral: 0, negative: 0 },
+        trends: [],
+        recentResponses: [],
+        responseRate: 0,
+        topKeywords: []
+      })
+    }
+  }, [responses, responsesLoading])
 
   const handleBusinessCreated = (newBusiness: Business) => {
     setBusiness(newBusiness)
@@ -162,32 +198,38 @@ export default function Dashboard() {
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <>
+              {/* Real-time Connection Status */}
+              {responsesError && (
+                <div className="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
+                  <div className="flex items-center space-x-2">
+                    <span>⚠️</span>
+                    <span>Connection error: {responsesError}</span>
+                  </div>
+                </div>
+              )}
+
+              {isConnected && (
+                <div className="mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
+                  <div className="flex items-center space-x-2">
+                    <span>🟢</span>
+                    <span>Real-time updates active</span>
+                  </div>
+                </div>
+              )}
+
               {/* Analytics Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Total Responses
-                  </h3>
-                  <p className="text-3xl font-extrabold text-blue-600">0</p>
-                  <p className="text-sm text-gray-700">This month</p>
-                </div>
-
-                <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Average Rating
-                  </h3>
-                  <p className="text-3xl font-extrabold text-green-600">-</p>
-                  <p className="text-sm text-gray-700">Out of 5 stars</p>
-                </div>
-
-                <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Response Rate
-                  </h3>
-                  <p className="text-3xl font-extrabold text-purple-600">-</p>
-                  <p className="text-sm text-gray-700">QR scans to completion</p>
-                </div>
-              </div>
+              <AnalyticsCards 
+                analytics={analytics || {
+                  totalResponses: 0,
+                  averageRating: 0,
+                  sentimentBreakdown: { positive: 0, neutral: 0, negative: 0 },
+                  trends: [],
+                  recentResponses: [],
+                  responseRate: 0,
+                  topKeywords: []
+                }}
+                loading={responsesLoading}
+              />
 
               {/* Surveys */}
               <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
@@ -229,14 +271,14 @@ export default function Dashboard() {
               </div>
 
               {/* Recent Responses */}
-              <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Recent Responses
-                </h3>
-                <div className="text-center py-8 text-gray-700">
-                  <p>No responses yet. Share your QR code to start collecting feedback!</p>
-                </div>
-              </div>
+              <ResponseFeed 
+                responses={responses}
+                loading={responsesLoading}
+                onResponseClick={(response) => {
+                  console.log('Response clicked:', response)
+                  // TODO: Open response detail modal
+                }}
+              />
             </>
           )}
         </div>

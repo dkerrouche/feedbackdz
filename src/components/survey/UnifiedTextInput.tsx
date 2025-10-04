@@ -177,8 +177,9 @@ export default function UnifiedTextInput({
       URL.revokeObjectURL(audioUrl)
       setAudioUrl(null)
     }
+    onChange('') // Clear text value
     onAudioRecorded(new Blob()) // Empty blob to clear
-  }, [onAudioRecorded, audioUrl])
+  }, [onAudioRecorded, audioUrl, onChange])
 
   const playAudio = useCallback(() => {
     if (audioRef.current) {
@@ -235,8 +236,8 @@ export default function UnifiedTextInput({
 
       {/* Chat-like Input Container */}
       <div className="relative">
-        {!showVoiceRecorder ? (
-          /* Text Input Area */
+        {!showVoiceRecorder && !hasAudio ? (
+          /* Text Input Area - Only shown when no audio is recorded */
           <div className="relative bg-white border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-blue-600">
             <textarea
               ref={textareaRef}
@@ -253,17 +254,13 @@ export default function UnifiedTextInput({
               type="button"
               onClick={startRecording}
               disabled={disabled}
-              className={`absolute right-3 bottom-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
-                hasAudio
-                  ? 'bg-green-100 text-green-600 hover:bg-green-200'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-              title={hasAudio ? 'Voice recorded - Click to record again' : 'Record voice'}
+              className="absolute right-3 bottom-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 cursor-pointer"
+              title="Record voice"
             >
-              {hasAudio ? '🎤' : '🎤'}
+              🎤
             </button>
           </div>
-        ) : (
+        ) : showVoiceRecorder ? (
           /* Recording Interface (replaces text input) */
           <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
             <div className="text-center">
@@ -307,7 +304,7 @@ export default function UnifiedTextInput({
               </div>
             </div>
           </div>
-        )}
+        ) : null}
 
         {/* Audio Playback Interface (shown when audio is recorded) */}
         {hasAudio && !showVoiceRecorder && (
