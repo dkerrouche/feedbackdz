@@ -52,6 +52,10 @@
 - Voice integration: Voice recording fully integrated into public survey page
 - Unified input interface: Chat-like text/voice input combining both input methods seamlessly
 - Question type simplification: Removed voice/text distinction, all text questions support both input methods
+- Audio replacement mode: Audio recording completely replaces text input (not optional)
+- Audio playback interface: Built-in HTML5 audio player with preview before submission
+- Direct recording flow: Click mic starts recording immediately with trash cancel button
+- UX improvements: Bottom-right mic icon, replacement mode, seamless audio/text switching
 
 ### What's not implemented (gaps)
 - Real phone OTP authentication with Supabase (replace mock)

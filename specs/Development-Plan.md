@@ -68,6 +68,10 @@
 - **AI Generation Update:** Modified prompts to generate only rating + text questions ✅
 - **Survey Generator Update:** Updated interface to reflect unified input approach ✅
 - **Component Architecture:** Created UnifiedTextInput component with modern chat-like UX ✅
+- **Audio Replacement Mode:** Audio recording completely replaces text input (not optional) ✅
+- **Audio Playback Interface:** Built-in audio player with preview before submission ✅
+- **Direct Recording Flow:** Click mic starts recording immediately with trash cancel button ✅
+- **UX Improvements:** Bottom-right mic icon, replacement mode, seamless audio/text switching ✅
 
 ### 📋 Sprint 2 Goals (Week 2) ✅ **COMPLETED**
 1. **Business Dashboard** - Complete business profile management ✅ **COMPLETED**
@@ -159,6 +163,8 @@
 - [x] Multi-language support (Arabic/French) ✅ **COMPLETED**
 - [x] Response submission and processing ✅ **COMPLETED**
 - [x] Unified text/voice input interface ✅ **COMPLETED**
+- [x] Audio replacement mode with playback functionality ✅ **COMPLETED**
+- [x] Direct recording flow with improved UX ✅ **COMPLETED**
 
 **Tasks:**
 - [x] Build mobile-first response interface ✅ **COMPLETED**
@@ -169,6 +175,9 @@
 - [x] Implement PWA features (offline capability, installable) ✅ **COMPLETED**
 - [x] Create unified text/voice input component ✅ **COMPLETED**
 - [x] Update survey generation to use unified approach ✅ **COMPLETED**
+- [x] Implement audio replacement mode (audio replaces text) ✅ **COMPLETED**
+- [x] Add audio playback interface with preview functionality ✅ **COMPLETED**
+- [x] Create direct recording flow with immediate start ✅ **COMPLETED**
 
 **Acceptance Criteria:**
 - [x] Interface loads in <3 seconds on 3G ✅ **COMPLETED**
@@ -177,6 +186,8 @@
 - [x] Arabic text displays correctly (RTL) ✅ **COMPLETED**
 - [x] Response submission completes in <30 seconds ✅ **COMPLETED**
 - [x] Unified input provides seamless text/voice experience ✅ **COMPLETED**
+- [x] Audio replacement mode works correctly (audio replaces text) ✅ **COMPLETED**
+- [x] Audio playback allows preview before submission ✅ **COMPLETED**
 
 ### Phase 2: AI Processing & Real-time Features (Weeks 7-10)
 **Goal:** Implement AI-powered insights and real-time updates

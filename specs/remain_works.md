@@ -38,6 +38,10 @@
 - AI generation update: only rating + text questions ✅ **COMPLETED**
 - Survey generator update: unified input approach ✅ **COMPLETED**
 - Component architecture: UnifiedTextInput with modern UX ✅ **COMPLETED**
+- Audio replacement mode: audio completely replaces text (not optional) ✅ **COMPLETED**
+- Audio playback interface: built-in HTML5 player with preview ✅ **COMPLETED**
+- Direct recording flow: click mic starts recording immediately ✅ **COMPLETED**
+- UX improvements: bottom-right mic, replacement mode, trash cancel ✅ **COMPLETED**
 - Acceptance: Seamless text/voice experience like chat apps ✅ **COMPLETED**
 
 #### 6) Dashboard enhancements
