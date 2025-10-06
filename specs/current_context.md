@@ -42,7 +42,7 @@
 - AI survey question generation via GPT-4 (AR/FR/EN) with strict JSON handling and fallbacks
 - Survey persistence: API to create and list surveys; dashboard flow wires generation → creation
 - QR preview + PNG/SVG download in dashboard via `QrViewer` and `utils/qr`
-- Dashboard UI with Overview, Business Profile, and Create Survey tabs (analytics placeholders)
+- Dashboard UI with Overview, Business Profile, and Create Survey tabs
 - Style guide added at `specs/guide_style.md`; components restyled for contrast
 - Public survey flow: `/s/{qr_code}` page for rating + text; public APIs to fetch survey and submit responses
 - Survey fixes: proper question ordering, independent rating handling, dashboard loads existing surveys
@@ -58,10 +58,15 @@
 - Direct recording flow: Click mic starts recording immediately with trash cancel button
 - UX improvements: Bottom-right mic icon, replacement mode, seamless audio/text switching
 - Professional icon system: Replaced all emoji icons with Lucide React icons for better UI consistency
+- Analytics API and wiring: `/api/analytics` computes metrics within date range and dashboard fetches them
+- Responses API: `/api/responses` supports pagination and filters (date, rating, sentiment, search, QR)
+- CSV export: `/api/responses/export` streams filtered CSV
+- Dashboard filters: date range controls; analytics refresh on change
 
 ### What's not implemented (gaps)
 - Real phone OTP authentication with Supabase (replace mock)
-- Realtime updates (Supabase Realtime), charts/analytics, filters/search, exports
+- Realtime analytics refresh via server push (client realtime feed exists; server analytics currently polled)
+- Charts enhancements and full filter UI (rating/sentiment/search/QR) on dashboard
 - Admin panel (user management, platform monitoring), daily summaries cron + email
 - Full i18n for UI (beyond generated questions)
 
@@ -74,12 +79,10 @@
 
 ### Next steps (prioritized)
 1. Replace mock auth with Supabase OTP and user session handling; remove localStorage gate.
-2. Dashboard basics:
-   - List real surveys from DB for the business; simple metrics from `responses` with indexes.
-3. Realtime:
-   - Subscribe to `responses` by `business_id` to update dashboard feed.
-4. Polish:
-   - Error states, i18n toggle for UI, minimal charts, CSV export.
+2. Dashboard filters UI: add rating, sentiment, search, QR filters; wire to `/api/analytics` and `/api/responses`.
+3. Realtime polish: on new inserts, trigger lightweight analytics refetch; keep feed live.
+4. Charts: last-30-days trend, rating distribution, keywords chart; use server datasets.
+5. i18n toggle for UI (AR/FR) and RTL polish.
 
 ### Assumptions for current dev mode
 - Using seeded business + fixed dev phone for profile linkage

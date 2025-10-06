@@ -48,7 +48,7 @@
 #### 6) Dashboard enhancements
 - List real surveys from DB; link to QR view/download
 - Recent responses feed with transcription/sentiment
-- Basic analytics (counts, average rating, sentiment breakdown)
+- Basic analytics (counts, average rating, sentiment breakdown) — DATE RANGE DONE via `/api/analytics`
 - Acceptance: Cards reflect DB; feed updates as data arrives
 
 #### 7) Realtime updates
@@ -59,7 +59,7 @@
 #### 8) i18n & UX polish
 - UI-level AR/FR translations, RTL for Arabic
 - Error/empty/loading states, form validation
-- CSV export for responses
+- CSV export for responses — DONE via `/api/responses/export`
 - Professional icon system with Lucide React ✅ **COMPLETED**
 - Acceptance: Smooth UX; accessible on low-end Android; RTL correct
 
@@ -88,9 +88,9 @@
 
 ### Milestones
 - M1: Auth + QR assets + public survey (text) live ✅ **COMPLETED**
-- M2: Responses in DB + dashboard metrics + realtime
+- M2: Responses in DB + dashboard metrics (date-range) + realtime (feed) — PARTIAL
 - M3: Voice + transcription + sentiment/keywords ✅ **COMPLETED**
 - M3.1: Unified input interface + question simplification ✅ **COMPLETED**
 - M3.2: Professional icon system with Lucide React ✅ **COMPLETED**
-- M4: Admin basics + daily summaries + exports
+- M4: Admin basics + daily summaries + exports (CSV done)
 
