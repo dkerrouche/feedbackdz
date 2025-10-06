@@ -46,6 +46,7 @@ export default function ResponseDetailModal({
   const [notes, setNotes] = useState<string>((response as any)?.notes || '')
   const [savingNotes, setSavingNotes] = useState(false)
   const [savedAt, setSavedAt] = useState<number | null>(null)
+  const [dirty, setDirty] = useState(false)
 
   const formatDateTime = (date: string) => {
     return new Date(date).toLocaleString('en-US', {
@@ -243,7 +244,7 @@ export default function ResponseDetailModal({
             <h3 className="text-sm font-medium text-gray-700 mb-3">Internal Notes</h3>
             <textarea
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={(e) => { setNotes(e.target.value); setDirty(true) }}
               placeholder="Add notes for your team (not visible to customers)"
               className="w-full min-h-[100px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
@@ -254,6 +255,7 @@ export default function ResponseDetailModal({
                     setSavingNotes(true)
                     await updateResponse(response.id, 'update_notes', { notes: notes?.trim() || '' })
                     setSavedAt(Date.now())
+                  setDirty(false)
                   } finally {
                     setSavingNotes(false)
                   }
@@ -316,14 +318,36 @@ export default function ResponseDetailModal({
           
           <div className="flex items-center space-x-2">
             <button
-              onClick={onClose}
+              onClick={async () => {
+                if (dirty) {
+                  try {
+                    setSavingNotes(true)
+                    await updateResponse(response.id, 'update_notes', { notes: notes?.trim() || '' })
+                    setSavedAt(Date.now())
+                    setDirty(false)
+                  } finally {
+                    setSavingNotes(false)
+                  }
+                }
+                onClose()
+              }}
               className="px-4 py-2 text-gray-600 hover:text-gray-700 transition-colors"
             >
               Close
             </button>
             
             <button
-              onClick={() => {
+              onClick={async () => {
+                if (dirty) {
+                  try {
+                    setSavingNotes(true)
+                    await updateResponse(response.id, 'update_notes', { notes: notes?.trim() || '' })
+                    setSavedAt(Date.now())
+                    setDirty(false)
+                  } finally {
+                    setSavingNotes(false)
+                  }
+                }
                 onDelete(response.id);
                 onClose();
               }}

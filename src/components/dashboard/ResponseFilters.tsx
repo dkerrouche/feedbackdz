@@ -43,13 +43,14 @@ export default function ResponseFilters({
   const clearFilters = () => {
     onFiltersChange({
       search: '',
-      rating: null,
-      sentiment: null,
+      ratings: [],
+      sentiments: [],
       dateRange: null,
-      hasAudio: null,
+      includeAudio: true,
+      includeText: true,
       isFlagged: null,
       isAddressed: null
-    });
+    } as any);
   };
 
   const hasActiveFilters = Object.values(filters).some(value => 
@@ -137,7 +138,7 @@ export default function ResponseFilters({
       {/* Filters Grid */}
       {isExpanded && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Rating Filter */}
+          {/* Rating Filter (checkbox multi) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Rating
@@ -146,11 +147,14 @@ export default function ResponseFilters({
               {[5, 4, 3, 2, 1].map((rating) => (
                 <label key={rating} className="flex items-center space-x-2 cursor-pointer">
                   <input
-                    type="radio"
-                    name="rating"
-                    checked={filters.rating === rating}
-                    onChange={() => handleFilterChange('rating', filters.rating === rating ? null : rating)}
-                    className="text-blue-600 focus:ring-blue-500"
+                    type="checkbox"
+                    checked={(filters as any).ratings?.includes(rating)}
+                    onChange={(e) => {
+                      const current = (filters as any).ratings || []
+                      const next = e.target.checked ? [...current, rating] : current.filter((r: number) => r !== rating)
+                      handleFilterChange('ratings' as any, next)
+                    }}
+                    className="text-blue-600 focus:ring-blue-500 rounded"
                   />
                   <div className="flex items-center space-x-1">
                     {renderStars(rating)}
@@ -161,7 +165,7 @@ export default function ResponseFilters({
             </div>
           </div>
 
-          {/* Sentiment Filter */}
+          {/* Sentiment Filter (checkbox multi) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Sentiment
@@ -174,11 +178,14 @@ export default function ResponseFilters({
               ].map((sentiment) => (
                 <label key={sentiment.value} className="flex items-center space-x-2 cursor-pointer">
                   <input
-                    type="radio"
-                    name="sentiment"
-                    checked={filters.sentiment === sentiment.value}
-                    onChange={() => handleFilterChange('sentiment', filters.sentiment === sentiment.value ? null : sentiment.value)}
-                    className="text-blue-600 focus:ring-blue-500"
+                    type="checkbox"
+                    checked={(filters as any).sentiments?.includes(sentiment.value)}
+                    onChange={(e) => {
+                      const current = (filters as any).sentiments || []
+                      const next = e.target.checked ? [...current, sentiment.value] : current.filter((s: string) => s !== sentiment.value)
+                      handleFilterChange('sentiments' as any, next)
+                    }}
+                    className="text-blue-600 focus:ring-blue-500 rounded"
                   />
                   <div className={`flex items-center space-x-1 ${sentiment.color}`}>
                     {getSentimentIcon(sentiment.value)}
@@ -189,7 +196,7 @@ export default function ResponseFilters({
             </div>
           </div>
 
-          {/* Content Type Filter */}
+          {/* Content Type Filter (checkbox combine) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Content Type
@@ -197,11 +204,10 @@ export default function ResponseFilters({
             <div className="space-y-2">
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
-                  type="radio"
-                  name="hasAudio"
-                  checked={filters.hasAudio === true}
-                  onChange={() => handleFilterChange('hasAudio', filters.hasAudio === true ? null : true)}
-                  className="text-blue-600 focus:ring-blue-500"
+                  type="checkbox"
+                  checked={(filters as any).includeAudio === true}
+                  onChange={(e) => handleFilterChange('includeAudio' as any, e.target.checked)}
+                  className="text-blue-600 focus:ring-blue-500 rounded"
                 />
                 <div className="flex items-center space-x-1 text-blue-600">
                   <Mic className="w-4 h-4" />
@@ -211,11 +217,10 @@ export default function ResponseFilters({
               
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
-                  type="radio"
-                  name="hasAudio"
-                  checked={filters.hasAudio === false}
-                  onChange={() => handleFilterChange('hasAudio', filters.hasAudio === false ? null : false)}
-                  className="text-blue-600 focus:ring-blue-500"
+                  type="checkbox"
+                  checked={(filters as any).includeText === true}
+                  onChange={(e) => handleFilterChange('includeText' as any, e.target.checked)}
+                  className="text-blue-600 focus:ring-blue-500 rounded"
                 />
                 <div className="flex items-center space-x-1 text-gray-600">
                   <MessageSquare className="w-4 h-4" />

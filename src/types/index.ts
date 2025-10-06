@@ -135,6 +135,12 @@ export interface RealtimeResponse {
   created_at: string
   processed_at: string | null
   is_spam: boolean
+  // Optional management fields (present when server includes them)
+  is_flagged?: boolean
+  is_addressed?: boolean
+  notes?: string | null
+  flagged_at?: string | null
+  addressed_at?: string | null
 }
 
 export interface AnalyticsData {
@@ -163,13 +169,14 @@ export interface AnalyticsData {
 
 export interface ResponseFilters {
   search: string
-  rating: number | null
-  sentiment: string | null
+  ratings: number[]
+  sentiments: string[]
   dateRange: {
     start: string
     end: string
   } | null
-  hasAudio: boolean | null
+  includeAudio: boolean
+  includeText: boolean
   isFlagged: boolean | null
   isAddressed: boolean | null
 }

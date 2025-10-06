@@ -160,6 +160,16 @@ function ResponseItem({
             </button>
           )}
           
+          {isAddressed && (
+            <button
+              onClick={() => onMarkAddressed(response.id)}
+              className="flex items-center space-x-1 text-sm text-green-600 hover:text-green-700 transition-colors"
+            >
+              <CheckCircle className={`w-4 h-4 ${isAddressed ? 'text-green-600' : 'text-gray-400'}`} />
+              <span>Unmark Addressed</span>
+            </button>
+          )}
+
           <button
             onClick={() => onFlag(response.id)}
             className={`flex items-center space-x-1 text-sm transition-colors ${

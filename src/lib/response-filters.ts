@@ -13,13 +13,13 @@ export function filterResponses(responses: RealtimeResponse[], filters: Response
       if (!matchesSearch) return false;
     }
 
-    // Rating filter
-    if (filters.rating !== null && response.rating !== filters.rating) {
+    // Rating filter (multi-select)
+    if (filters.ratings && filters.ratings.length > 0 && !filters.ratings.includes(response.rating)) {
       return false;
     }
 
-    // Sentiment filter
-    if (filters.sentiment && response.sentiment !== filters.sentiment) {
+    // Sentiment filter (multi-select)
+    if (filters.sentiments && filters.sentiments.length > 0 && !filters.sentiments.includes(response.sentiment)) {
       return false;
     }
 
@@ -34,24 +34,24 @@ export function filterResponses(responses: RealtimeResponse[], filters: Response
       }
     }
 
-    // Audio filter
-    if (filters.hasAudio !== null) {
-      const hasAudio = response.audio_url !== null;
-      if (hasAudio !== filters.hasAudio) {
-        return false;
-      }
+    // Content type filters (checkbox combine)
+    if (filters.includeAudio === false && filters.includeText === false) {
+      // none selected -> no results
+      return false;
     }
+    const hasAudio = !!response.audio_url
+    const matchesAudio = hasAudio && filters.includeAudio
+    const matchesText = !hasAudio && filters.includeText
+    if (!matchesAudio && !matchesText) return false
 
     // Flagged filter
     if (filters.isFlagged !== null) {
-      // This would need to be added to the response data structure
-      // For now, we'll skip this filter
+      if (!!(response as any).is_flagged !== filters.isFlagged) return false
     }
 
     // Addressed filter
     if (filters.isAddressed !== null) {
-      // This would need to be added to the response data structure
-      // For now, we'll skip this filter
+      if (!!(response as any).is_addressed !== filters.isAddressed) return false
     }
 
     return true;
@@ -61,10 +61,11 @@ export function filterResponses(responses: RealtimeResponse[], filters: Response
 export function getDefaultFilters(): ResponseFilters {
   return {
     search: '',
-    rating: null,
-    sentiment: null,
+    ratings: [],
+    sentiments: [],
     dateRange: null,
-    hasAudio: null,
+    includeAudio: true,
+    includeText: true,
     isFlagged: null,
     isAddressed: null
   };
