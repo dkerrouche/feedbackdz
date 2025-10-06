@@ -61,7 +61,7 @@
 - Analytics API and wiring: `/api/analytics` computes metrics within date range and dashboard fetches them
 - Responses API: `/api/responses` supports pagination and filters (date, rating, sentiment, search, QR)
 - CSV export: `/api/responses/export` streams filtered CSV
-- Dashboard filters: date range controls; analytics refresh on change
+- Dashboard filters: date range controls; analytics refresh on change; responses list uses server pagination
 
 ### What's not implemented (gaps)
 - Real phone OTP authentication with Supabase (replace mock)

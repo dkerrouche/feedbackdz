@@ -221,7 +221,7 @@
 **Deliverables:**
 - [ ] Real-time response updates
 - [x] Basic analytics dashboard
-- [ ] Response filtering and search
+- [ ] Response filtering and search (server APIs ready; UI pending)
 - [ ] Sentiment visualization
 - [ ] Response management features
 
@@ -235,12 +235,14 @@
 - DONE: Create `/api/analytics` with date-range aggregates and wire dashboard date controls
 - DONE: Create `/api/responses` with pagination and filters (date, rating, sentiment, search, QR)
 - DONE: Create `/api/responses/export` to stream CSV with matching filters
+- DONE: Wire dashboard responses list to server (pagination controls added)
 
 **Acceptance Criteria:**
 - Dashboard updates in real-time (<5 seconds)
 - Analytics show accurate metrics and trends (date-range: DONE)
-- Filtering works for date (DONE), rating/sentiment/search (PENDING)
+- Filtering works for date (DONE), rating/sentiment/search (API ready; UI pending)
 - Search finds responses by transcription content (API ready; UI pending)
+- Pagination works for responses list (DONE)
 - Export functionality works for CSV (DONE), PDF (PENDING)
 
 ### Phase 3: Polish & Launch Preparation (Weeks 11-12)
