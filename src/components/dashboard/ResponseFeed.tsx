@@ -31,9 +31,9 @@ export default function ResponseFeed({
   const filteredResponses = filterResponses(responses, filters)
   const filteredCount = getFilteredCount(responses, filters)
 
-  const handleMarkAddressed = async (responseId: string) => {
+  const handleMarkAddressed = async (responseId: string, currentlyAddressed?: boolean) => {
     try {
-      await updateResponse(responseId, 'mark_addressed')
+      await updateResponse(responseId, currentlyAddressed ? 'unmark_addressed' : 'mark_addressed')
       onResponsesChange?.()
     } catch (error) {
       console.error('Failed to mark response as addressed:', error)
@@ -41,9 +41,9 @@ export default function ResponseFeed({
     }
   }
 
-  const handleFlag = async (responseId: string) => {
+  const handleFlag = async (responseId: string, currentlyFlagged?: boolean) => {
     try {
-      await updateResponse(responseId, 'flag')
+      await updateResponse(responseId, currentlyFlagged ? 'unflag' : 'flag')
       onResponsesChange?.()
     } catch (error) {
       console.error('Failed to flag response:', error)
@@ -149,12 +149,12 @@ export default function ResponseFeed({
               <ResponseItem
                 key={response.id}
                 response={response}
-                onMarkAddressed={handleMarkAddressed}
-                onFlag={handleFlag}
+                onMarkAddressed={(id) => handleMarkAddressed(id, (response as any).is_addressed)}
+                onFlag={(id) => handleFlag(id, (response as any).is_flagged)}
                 onDelete={handleDelete}
                 onViewDetails={handleViewDetails}
-                isAddressed={false} // TODO: Get from response data
-                isFlagged={false} // TODO: Get from response data
+                isAddressed={(response as any).is_addressed === true}
+                isFlagged={(response as any).is_flagged === true}
               />
             ))}
           </div>
@@ -166,11 +166,11 @@ export default function ResponseFeed({
         response={selectedResponse}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        onMarkAddressed={handleMarkAddressed}
-        onFlag={handleFlag}
+        onMarkAddressed={(id) => handleMarkAddressed(id, (selectedResponse as any)?.is_addressed)}
+        onFlag={(id) => handleFlag(id, (selectedResponse as any)?.is_flagged)}
         onDelete={handleDelete}
-        isAddressed={false} // TODO: Get from response data
-        isFlagged={false} // TODO: Get from response data
+        isAddressed={(selectedResponse as any)?.is_addressed === true}
+        isFlagged={(selectedResponse as any)?.is_flagged === true}
       />
     </div>
   )

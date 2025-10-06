@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { RealtimeResponse } from '@/types';
 import { 
   X, 
@@ -18,6 +18,7 @@ import {
   Smartphone,
   Calendar
 } from 'lucide-react';
+import { updateResponse } from '@/lib/response-management'
 
 interface ResponseDetailModalProps {
   response: RealtimeResponse | null;
@@ -41,6 +42,10 @@ export default function ResponseDetailModal({
   isFlagged = false
 }: ResponseDetailModalProps) {
   if (!isOpen || !response) return null;
+
+  const [notes, setNotes] = useState<string>((response as any)?.notes || '')
+  const [savingNotes, setSavingNotes] = useState(false)
+  const [savedAt, setSavedAt] = useState<number | null>(null)
 
   const formatDateTime = (date: string) => {
     return new Date(date).toLocaleString('en-US', {
@@ -184,7 +189,8 @@ export default function ResponseDetailModal({
             </div>
           )}
 
-          {/* Technical Details */}
+          {/* Technical Details */
+          }
           <div className="bg-gray-50 rounded-lg p-4">
             <h3 className="text-sm font-medium text-gray-700 mb-3">Technical Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -231,6 +237,37 @@ export default function ResponseDetailModal({
               </div>
             </div>
           </div>
+
+          {/* Notes */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Internal Notes</h3>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add notes for your team (not visible to customers)"
+              className="w-full min-h-[100px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            />
+            <div className="flex justify-end mt-3">
+              <button
+                onClick={async () => {
+                  try {
+                    setSavingNotes(true)
+                    await updateResponse(response.id, 'update_notes', { notes: notes?.trim() || '' })
+                    setSavedAt(Date.now())
+                  } finally {
+                    setSavingNotes(false)
+                  }
+                }}
+                disabled={savingNotes}
+                className={`px-4 py-2 rounded-lg text-sm ${savingNotes ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+              >
+                {savingNotes ? 'Saving…' : 'Save Notes'}
+              </button>
+              {savedAt && (
+                <span className="ml-3 text-sm text-green-600">Saved</span>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Actions */}
@@ -246,6 +283,18 @@ export default function ResponseDetailModal({
               >
                 <CheckCircle className="w-4 h-4" />
                 <span>Mark Addressed</span>
+              </button>
+            )}
+            {isAddressed && (
+              <button
+                onClick={() => {
+                  onMarkAddressed(response.id);
+                  onClose();
+                }}
+                className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+              >
+                <CheckCircle className="w-4 h-4" />
+                <span>Unmark Addressed</span>
               </button>
             )}
             
