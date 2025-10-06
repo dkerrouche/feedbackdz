@@ -224,6 +224,7 @@
 - [ ] Response filtering and search (server APIs ready; UI pending)
 - [x] Sentiment visualization
 - [x] Response management features
+- [x] Performance optimization (memoization)
 
 **Tasks:**
 - Implement Supabase real-time subscriptions
@@ -239,6 +240,7 @@
 - DONE: Response management actions (flag, mark addressed, notes) with schema migration
 - DONE: Sentiment pie chart visualization in DashboardCharts
 - DONE: Optimize dashboard refresh to only refetch responses list on actions
+- DONE: Memoize ResponseFeed and ResponseItem components to prevent unnecessary re-renders
 
 **Acceptance Criteria:**
 - Dashboard updates in real-time (<5 seconds)
@@ -248,6 +250,7 @@
 - Pagination works for responses list (DONE)
 - Export functionality works for CSV (DONE), PDF (PENDING)
 - Response actions (flag/address/notes) work and refresh list only (DONE)
+- Response actions don't trigger full dashboard re-renders (DONE)
 
 ### Phase 3: Polish & Launch Preparation (Weeks 11-12)
 **Goal:** Production-ready launch with comprehensive testing

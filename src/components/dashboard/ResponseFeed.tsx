@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, memo } from 'react'
 import { RealtimeResponse, ResponseFilters } from '@/types'
 import { FileText } from 'lucide-react'
 import ResponseItem from './ResponseItem'
@@ -15,14 +15,16 @@ interface ResponseFeedProps {
   onResponseClick?: (response: RealtimeResponse) => void
   businessId?: string
   onResponsesChange?: () => void
+  onResponseMutated?: (id: string, updates: Partial<RealtimeResponse>) => void
 }
 
-export default function ResponseFeed({ 
+function ResponseFeed({ 
   responses, 
   loading = false, 
   onResponseClick,
   businessId,
-  onResponsesChange
+  onResponsesChange,
+  onResponseMutated
 }: ResponseFeedProps) {
   const [filters, setFilters] = useState<ResponseFilters>(getDefaultFilters())
   const [selectedResponse, setSelectedResponse] = useState<RealtimeResponse | null>(null)
@@ -34,7 +36,10 @@ export default function ResponseFeed({
   const handleMarkAddressed = async (responseId: string, currentlyAddressed?: boolean) => {
     try {
       await updateResponse(responseId, currentlyAddressed ? 'unmark_addressed' : 'mark_addressed')
-      onResponsesChange?.()
+      onResponseMutated?.(responseId, {
+        is_addressed: !currentlyAddressed,
+        addressed_at: !currentlyAddressed ? new Date().toISOString() : null as any
+      } as any)
     } catch (error) {
       console.error('Failed to mark response as addressed:', error)
       // TODO: Show error toast
@@ -44,7 +49,10 @@ export default function ResponseFeed({
   const handleFlag = async (responseId: string, currentlyFlagged?: boolean) => {
     try {
       await updateResponse(responseId, currentlyFlagged ? 'unflag' : 'flag')
-      onResponsesChange?.()
+      onResponseMutated?.(responseId, {
+        is_flagged: !currentlyFlagged,
+        flagged_at: !currentlyFlagged ? new Date().toISOString() : null as any
+      } as any)
     } catch (error) {
       console.error('Failed to flag response:', error)
       // TODO: Show error toast
@@ -175,3 +183,21 @@ export default function ResponseFeed({
     </div>
   )
 }
+
+// Memoize the component to prevent unnecessary re-renders
+export default memo(ResponseFeed, (prevProps, nextProps) => {
+  // Only re-render if these specific props change
+  const prevSig = JSON.stringify(
+    prevProps.responses.map(r => `${r.id}:${(r as any).is_flagged ? 1 : 0}:${(r as any).is_addressed ? 1 : 0}`)
+  )
+  const nextSig = JSON.stringify(
+    nextProps.responses.map(r => `${r.id}:${(r as any).is_flagged ? 1 : 0}:${(r as any).is_addressed ? 1 : 0}`)
+  )
+
+  return (
+    prevProps.loading === nextProps.loading &&
+    prevProps.businessId === nextProps.businessId &&
+    prevProps.responses.length === nextProps.responses.length &&
+    prevSig === nextSig
+  )
+})

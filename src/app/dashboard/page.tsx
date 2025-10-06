@@ -308,8 +308,10 @@ export default function Dashboard() {
                   trends: [],
                   recentResponses: [],
                   responseRate: 0,
-                  topKeywords: []
-                }}
+                  topKeywords: [],
+                  ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+                  keywordCounts: {}
+                } as any}
                 loading={responsesLoading}
               />
 
@@ -373,13 +375,16 @@ export default function Dashboard() {
                 responses={responseItems}
                 loading={responsesListLoading}
                 businessId={business?.id}
+                onResponseMutated={(id, updates) => {
+                  setResponseItems(prev => prev.map(r => r.id === id ? { ...r, ...(updates as any) } : r))
+                }}
                 onResponseClick={(response) => {
                   console.log('Response clicked:', response)
                   // TODO: Open response detail modal
                 }}
                 onResponsesChange={() => {
-                  // Refresh responses list after actions (flag, address, delete, notes)
-                  loadResponsesList()
+                  // Optional: can be used to refetch if needed
+                  // loadResponsesList()
                 }}
               />
 

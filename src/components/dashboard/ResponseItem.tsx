@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import { RealtimeResponse } from '@/types';
 import { 
   Star, 
@@ -26,7 +26,7 @@ interface ResponseItemProps {
   isFlagged?: boolean;
 }
 
-export default function ResponseItem({
+function ResponseItem({
   response,
   onMarkAddressed,
   onFlag,
@@ -184,3 +184,15 @@ export default function ResponseItem({
     </div>
   );
 }
+
+// Memoize to prevent re-renders when parent re-renders but props haven't changed
+export default memo(ResponseItem, (prevProps, nextProps) => {
+  return (
+    prevProps.response.id === nextProps.response.id &&
+    prevProps.isAddressed === nextProps.isAddressed &&
+    prevProps.isFlagged === nextProps.isFlagged &&
+    prevProps.response.rating === nextProps.response.rating &&
+    prevProps.response.sentiment === nextProps.response.sentiment &&
+    prevProps.response.transcription === nextProps.response.transcription
+  )
+})
