@@ -59,17 +59,39 @@ export async function deleteResponse(responseId: string) {
 
 export async function exportResponses(businessId: string, filters?: Partial<ResponseFilters>) {
   try {
-    const response = await fetch('/api/responses/export', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ business_id: businessId, filters }),
+    const params = new URLSearchParams()
+    params.set('business_id', businessId)
+
+    if (filters?.dateRange) {
+      if (filters.dateRange.start) params.set('start_date', filters.dateRange.start)
+      if (filters.dateRange.end) params.set('end_date', filters.dateRange.end)
+    }
+    if (filters?.ratingFilter && filters.ratingFilter.length > 0) {
+      params.set('ratings', filters.ratingFilter.join(','))
+    }
+    if (filters?.sentimentFilter && filters.sentimentFilter.length > 0) {
+      params.set('sentiments', filters.sentimentFilter.join(','))
+    }
+    if (filters?.searchQuery) {
+      params.set('search', filters.searchQuery)
+    }
+    if (filters?.surveyFilter && filters.surveyFilter.length > 0) {
+      // API expects QR codes list as `qrs`
+      params.set('qrs', filters.surveyFilter.join(','))
+    }
+
+    const response = await fetch(`/api/responses/export?${params.toString()}`, {
+      method: 'GET'
     })
 
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to export responses')
+      // Try to parse error JSON, otherwise use status text
+      let message = response.statusText || 'Failed to export responses'
+      try {
+        const errJson = await response.json()
+        message = errJson.error || message
+      } catch {}
+      throw new Error(message)
     }
 
     // Get the filename from the Content-Disposition header

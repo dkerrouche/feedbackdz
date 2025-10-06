@@ -32,21 +32,39 @@ export async function GET(request: NextRequest) {
 
     console.log('Analytics: Fetching analytics for business:', businessId, 'with filters:', filters)
 
-    // Fetch responses for the business
+    // If no explicit date range, use default last-30d
+    const startDate = filters.dateRange.start
+    const endDate = filters.dateRange.end
+
+    // Server-side total count using head:true
+    const { count: totalCount, error: countErr } = await supabaseServer
+      .from('responses')
+      .select('id', { count: 'exact', head: true })
+      .eq('business_id', businessId)
+      .eq('is_spam', false)
+      .gte('created_at', startDate)
+      .lte('created_at', endDate)
+
+    if (countErr) {
+      return NextResponse.json({ error: countErr.message }, { status: 500 })
+    }
+
+    // Fallback: fetch records to compute full analytics client-side when needed
     const { data: responses, error } = await supabaseServer
       .from('responses')
       .select('*')
       .eq('business_id', businessId)
-      .eq('is_spam', false) // Exclude spam responses
-      .order('created_at', { ascending: false })
+      .eq('is_spam', false)
+      .gte('created_at', startDate)
+      .lte('created_at', endDate)
 
     if (error) {
       console.error('❌ Error fetching responses:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Calculate analytics
     const analytics = calculateAnalytics(responses || [], filters)
+    analytics.totalResponses = typeof totalCount === 'number' ? totalCount : analytics.totalResponses
 
     console.log('✅ Analytics calculated:', {
       totalResponses: analytics.totalResponses,
@@ -54,12 +72,7 @@ export async function GET(request: NextRequest) {
       sentimentBreakdown: analytics.sentimentBreakdown
     })
 
-    return NextResponse.json({
-      success: true,
-      analytics,
-      filters,
-      generatedAt: new Date().toISOString()
-    })
+    return NextResponse.json({ success: true, analytics, filters, generatedAt: new Date().toISOString() })
 
   } catch (err: any) {
     console.error('❌ Analytics API error:', err)

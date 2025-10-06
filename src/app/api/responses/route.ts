@@ -50,6 +50,70 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// GET /api/responses?business_id=...&page=1&limit=20&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&ratings=5,4&sentiments=positive,neutral&search=coffee&qrs=QR1,QR2
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const businessId = searchParams.get('business_id')
+    if (!businessId) {
+      return NextResponse.json({ error: 'business_id is required' }, { status: 400 })
+    }
+
+    const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1)
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '20', 10), 1), 100)
+    const startDate = searchParams.get('start_date') || null
+    const endDate = searchParams.get('end_date') || null
+    const ratings = (searchParams.get('ratings') || '')
+      .split(',')
+      .map(r => r.trim())
+      .filter(Boolean)
+      .map(Number)
+    const sentiments = (searchParams.get('sentiments') || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+    const search = searchParams.get('search') || ''
+    const qrs = (searchParams.get('qrs') || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+
+    let query = supabaseServer
+      .from('responses')
+      .select('*', { count: 'exact' })
+      .eq('business_id', businessId)
+      .eq('is_spam', false)
+
+    if (startDate) query = query.gte('created_at', startDate)
+    if (endDate) query = query.lte('created_at', endDate)
+    if (ratings.length > 0) query = query.in('rating', ratings)
+    if (sentiments.length > 0) query = query.in('sentiment', sentiments)
+    if (search) query = query.or(`transcription.ilike.%${search}%,keywords.cs.{${search}}`)
+    if (qrs.length > 0) {
+      // join via surveys by qr_code using a filter on survey_id list fetched first
+      const { data: surveyRows, error: surveyErr } = await supabaseServer
+        .from('surveys')
+        .select('id')
+        .eq('business_id', businessId)
+        .in('qr_code', qrs)
+      if (surveyErr) return NextResponse.json({ error: surveyErr.message }, { status: 500 })
+      const surveyIds = (surveyRows || []).map(r => r.id)
+      if (surveyIds.length > 0) query = query.in('survey_id', surveyIds)
+      else return NextResponse.json({ items: [], total: 0, page, limit })
+    }
+
+    query = query.order('created_at', { ascending: false })
+      .range((page - 1) * limit, (page - 1) * limit + (limit - 1))
+
+    const { data, error, count } = await query
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    return NextResponse.json({ items: data || [], total: count || 0, page, limit })
+  } catch (err: any) {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
 // Background processing function
 async function processAudioInBackground(responseId: string, audioUrl: string, text: string) {
   try {

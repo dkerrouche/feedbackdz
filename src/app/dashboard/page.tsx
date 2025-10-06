@@ -22,6 +22,15 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>(() => {
+    const end = new Date()
+    const start = new Date()
+    start.setDate(start.getDate() - 30)
+    return {
+      start: start.toISOString().split('T')[0],
+      end: end.toISOString().split('T')[0]
+    }
+  })
 
   // Real-time responses hook
   const {
@@ -87,24 +96,35 @@ export default function Dashboard() {
 
   // Calculate analytics when responses change
   useEffect(() => {
-    if (responses.length > 0) {
-      const calculatedAnalytics = calculateAnalytics(responses, getDefaultFilters())
-      setAnalytics(calculatedAnalytics)
-    } else if (responses.length === 0 && !responsesLoading) {
-      // Reset analytics when no responses
-      setAnalytics({
-        totalResponses: 0,
-        averageRating: 0,
-        sentimentBreakdown: { positive: 0, neutral: 0, negative: 0 },
-        trends: [],
-        recentResponses: [],
-        responseRate: 0,
-        topKeywords: [],
-        ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-        keywordCounts: {}
-      })
+    // Fetch server analytics for accuracy; fallback to client calc if needed
+    const fetchAnalytics = async () => {
+      if (!business?.id) return
+      try {
+        setAnalyticsLoading(true)
+        const params = new URLSearchParams({
+          business_id: business.id,
+          start_date: dateRange.start,
+          end_date: dateRange.end
+        })
+        const res = await fetch(`/api/analytics?${params.toString()}`)
+        if (!res.ok) throw new Error('Failed to load analytics')
+        const json = await res.json()
+        if (json?.analytics) {
+          setAnalytics(json.analytics)
+          return
+        }
+      } catch (err) {
+        // Fallback to client-side calculation
+        const calculatedAnalytics = calculateAnalytics(responses, getDefaultFilters())
+        setAnalytics(calculatedAnalytics)
+      } finally {
+        setAnalyticsLoading(false)
+      }
     }
-  }, [responses, responsesLoading])
+
+    // Trigger when responses update (new data) or date range changes
+    fetchAnalytics()
+  }, [business?.id, responses, responsesLoading, dateRange.start, dateRange.end])
 
   const handleBusinessCreated = (newBusiness: Business) => {
     setBusiness(newBusiness)
@@ -178,6 +198,32 @@ export default function Dashboard() {
                 >
                   Create Survey {!business && '(Need Business Profile)'}
                 </button>
+                {/* Date range controls (simple) */}
+                <div className="hidden sm:flex items-center space-x-2">
+                  <input
+                    type="date"
+                    value={dateRange.start}
+                    onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                    className="px-3 py-2 rounded-lg text-sm border border-gray-200"
+                  />
+                  <span className="text-gray-500">to</span>
+                  <input
+                    type="date"
+                    value={dateRange.end}
+                    onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                    className="px-3 py-2 rounded-lg text-sm border border-gray-200"
+                  />
+                  <button
+                    onClick={() => {
+                      // Force refresh analytics
+                      setAnalyticsLoading(true)
+                      setTimeout(() => setAnalyticsLoading(false), 300)
+                    }}
+                    className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 border border-gray-200"
+                  >
+                    Refresh
+                  </button>
+                </div>
               </div>
             </div>
             <p className="text-gray-700">
