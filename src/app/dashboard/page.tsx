@@ -22,6 +22,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
+  const [responseItems, setResponseItems] = useState<RealtimeResponse[]>([])
+  const [responsesTotal, setResponsesTotal] = useState(0)
+  const [responsesPage, setResponsesPage] = useState(1)
+  const [responsesLimit, setResponsesLimit] = useState(20)
+  const [responsesListLoading, setResponsesListLoading] = useState(false)
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>(() => {
     const end = new Date()
     const start = new Date()
@@ -125,6 +130,37 @@ export default function Dashboard() {
     // Trigger when responses update (new data) or date range changes
     fetchAnalytics()
   }, [business?.id, responses, responsesLoading, dateRange.start, dateRange.end])
+
+  // Load responses list from server (paginated)
+  useEffect(() => {
+    const loadResponsesList = async () => {
+      if (!business?.id) return
+      try {
+        setResponsesListLoading(true)
+        const params = new URLSearchParams({
+          business_id: business.id,
+          page: String(responsesPage),
+          limit: String(responsesLimit),
+          start_date: dateRange.start,
+          end_date: dateRange.end
+        })
+        const res = await fetch(`/api/responses?${params.toString()}`)
+        const json = await res.json()
+        if (!res.ok) {
+          console.error('❌ Failed to load responses list:', json?.error)
+          return
+        }
+        setResponseItems(json.items || [])
+        setResponsesTotal(json.total || 0)
+      } catch (err) {
+        console.error('❌ Error loading responses list:', err)
+      } finally {
+        setResponsesListLoading(false)
+      }
+    }
+
+    loadResponsesList()
+  }, [business?.id, responsesPage, responsesLimit, dateRange.start, dateRange.end])
 
   const handleBusinessCreated = (newBusiness: Business) => {
     setBusiness(newBusiness)
@@ -338,8 +374,8 @@ export default function Dashboard() {
 
               {/* Recent Responses */}
               <ResponseFeed 
-                responses={responses}
-                loading={responsesLoading}
+                responses={responseItems}
+                loading={responsesListLoading}
                 businessId={business?.id}
                 onResponseClick={(response) => {
                   console.log('Response clicked:', response)
@@ -350,6 +386,32 @@ export default function Dashboard() {
                   // The real-time hook will automatically update
                 }}
               />
+
+              {/* Pagination Controls */}
+              <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  Page {responsesPage} • Showing {responseItems.length} of {responsesTotal}
+                </div>
+                <div className="space-x-2">
+                  <button
+                    onClick={() => setResponsesPage(prev => Math.max(prev - 1, 1))}
+                    disabled={responsesPage <= 1 || responsesListLoading}
+                    className={`px-3 py-2 rounded-lg text-sm border ${responsesPage <= 1 || responsesListLoading ? 'text-gray-400 bg-gray-50 border-gray-100 cursor-not-allowed' : 'text-gray-900 bg-gray-100 border-gray-200 hover:bg-gray-200'}`}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => {
+                      const maxPage = Math.max(1, Math.ceil(responsesTotal / responsesLimit))
+                      setResponsesPage(prev => Math.min(prev + 1, maxPage))
+                    }}
+                    disabled={responsesListLoading || responseItems.length < responsesLimit || (responsesPage * responsesLimit) >= responsesTotal}
+                    className={`px-3 py-2 rounded-lg text-sm border ${responsesListLoading || responseItems.length < responsesLimit || (responsesPage * responsesLimit) >= responsesTotal ? 'text-gray-400 bg-gray-50 border-gray-100 cursor-not-allowed' : 'text-gray-900 bg-gray-100 border-gray-200 hover:bg-gray-200'}`}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
             </>
           )}
         </div>
