@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseServer } from '@/lib/supabase-server'
 
 // GET /api/responses/[id] - Get a specific response
 export async function GET(
@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { data: response, error } = await supabase
+    const { data: response, error } = await supabaseServer
       .from('responses')
       .select('*')
       .eq('id', params.id)
@@ -66,7 +66,7 @@ export async function PATCH(
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     }
 
-    const { data: response, error } = await supabase
+    const { data: response, error } = await supabaseServer
       .from('responses')
       .update(updateData)
       .eq('id', params.id)
@@ -91,7 +91,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { error } = await supabase
+    const { error } = await supabaseServer
       .from('responses')
       .delete()
       .eq('id', params.id)

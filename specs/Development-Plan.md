@@ -222,8 +222,8 @@
 - [ ] Real-time response updates
 - [x] Basic analytics dashboard
 - [ ] Response filtering and search (server APIs ready; UI pending)
-- [ ] Sentiment visualization
-- [ ] Response management features
+- [x] Sentiment visualization
+- [x] Response management features
 
 **Tasks:**
 - Implement Supabase real-time subscriptions
@@ -236,6 +236,9 @@
 - DONE: Create `/api/responses` with pagination and filters (date, rating, sentiment, search, QR)
 - DONE: Create `/api/responses/export` to stream CSV with matching filters
 - DONE: Wire dashboard responses list to server (pagination controls added)
+- DONE: Response management actions (flag, mark addressed, notes) with schema migration
+- DONE: Sentiment pie chart visualization in DashboardCharts
+- DONE: Optimize dashboard refresh to only refetch responses list on actions
 
 **Acceptance Criteria:**
 - Dashboard updates in real-time (<5 seconds)
@@ -244,6 +247,7 @@
 - Search finds responses by transcription content (API ready; UI pending)
 - Pagination works for responses list (DONE)
 - Export functionality works for CSV (DONE), PDF (PENDING)
+- Response actions (flag/address/notes) work and refresh list only (DONE)
 
 ### Phase 3: Polish & Launch Preparation (Weeks 11-12)
 **Goal:** Production-ready launch with comprehensive testing

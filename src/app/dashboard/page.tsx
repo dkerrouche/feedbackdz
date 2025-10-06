@@ -99,66 +99,62 @@ export default function Dashboard() {
     }
   }, [business?.id])
 
-  // Calculate analytics when responses change
-  useEffect(() => {
-    // Fetch server analytics for accuracy; fallback to client calc if needed
-    const fetchAnalytics = async () => {
-      if (!business?.id) return
-      try {
-        setAnalyticsLoading(true)
-        const params = new URLSearchParams({
-          business_id: business.id,
-          start_date: dateRange.start,
-          end_date: dateRange.end
-        })
-        const res = await fetch(`/api/analytics?${params.toString()}`)
-        if (!res.ok) throw new Error('Failed to load analytics')
-        const json = await res.json()
-        if (json?.analytics) {
-          setAnalytics(json.analytics)
-          return
-        }
-      } catch (err) {
-        // Fallback to client-side calculation
-        const calculatedAnalytics = calculateAnalytics(responses, getDefaultFilters())
-        setAnalytics(calculatedAnalytics)
-      } finally {
-        setAnalyticsLoading(false)
+  // Fetch analytics from server
+  const fetchAnalytics = async () => {
+    if (!business?.id) return
+    try {
+      setAnalyticsLoading(true)
+      const params = new URLSearchParams({
+        business_id: business.id,
+        start_date: dateRange.start,
+        end_date: dateRange.end
+      })
+      const res = await fetch(`/api/analytics?${params.toString()}`)
+      if (!res.ok) throw new Error('Failed to load analytics')
+      const json = await res.json()
+      if (json?.analytics) {
+        setAnalytics(json.analytics)
       }
+    } catch (err) {
+      console.error('Failed to load analytics:', err)
+    } finally {
+      setAnalyticsLoading(false)
     }
+  }
 
-    // Trigger when responses update (new data) or date range changes
+  // Load analytics when business or date range changes
+  useEffect(() => {
     fetchAnalytics()
-  }, [business?.id, responses, responsesLoading, dateRange.start, dateRange.end])
+  }, [business?.id, dateRange.start, dateRange.end])
 
   // Load responses list from server (paginated)
-  useEffect(() => {
-    const loadResponsesList = async () => {
-      if (!business?.id) return
-      try {
-        setResponsesListLoading(true)
-        const params = new URLSearchParams({
-          business_id: business.id,
-          page: String(responsesPage),
-          limit: String(responsesLimit),
-          start_date: dateRange.start,
-          end_date: dateRange.end
-        })
-        const res = await fetch(`/api/responses?${params.toString()}`)
-        const json = await res.json()
-        if (!res.ok) {
-          console.error('❌ Failed to load responses list:', json?.error)
-          return
-        }
-        setResponseItems(json.items || [])
-        setResponsesTotal(json.total || 0)
-      } catch (err) {
-        console.error('❌ Error loading responses list:', err)
-      } finally {
-        setResponsesListLoading(false)
+  const loadResponsesList = async () => {
+    if (!business?.id) return
+    try {
+      setResponsesListLoading(true)
+      const params = new URLSearchParams({
+        business_id: business.id,
+        page: String(responsesPage),
+        limit: String(responsesLimit),
+        start_date: dateRange.start,
+        end_date: dateRange.end
+      })
+      const res = await fetch(`/api/responses?${params.toString()}`)
+      const json = await res.json()
+      if (!res.ok) {
+        console.error('❌ Failed to load responses list:', json?.error)
+        return
       }
+      setResponseItems(json.items || [])
+      setResponsesTotal(json.total || 0)
+    } catch (err) {
+      console.error('❌ Error loading responses list:', err)
+    } finally {
+      setResponsesListLoading(false)
     }
+  }
 
+  useEffect(() => {
     loadResponsesList()
   }, [business?.id, responsesPage, responsesLimit, dateRange.start, dateRange.end])
 
@@ -382,8 +378,8 @@ export default function Dashboard() {
                   // TODO: Open response detail modal
                 }}
                 onResponsesChange={() => {
-                  // Refresh responses when they change
-                  // The real-time hook will automatically update
+                  // Refresh responses list after actions (flag, address, delete, notes)
+                  loadResponsesList()
                 }}
               />
 
