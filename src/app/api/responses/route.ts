@@ -61,6 +61,8 @@ export async function GET(request: NextRequest) {
 
     const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1)
     const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '20', 10), 1), 100)
+    
+    // Parse all filter parameters
     const startDate = searchParams.get('start_date') || null
     const endDate = searchParams.get('end_date') || null
     const ratings = (searchParams.get('ratings') || '')
@@ -68,15 +70,42 @@ export async function GET(request: NextRequest) {
       .map(r => r.trim())
       .filter(Boolean)
       .map(Number)
+      .filter(n => !isNaN(n) && n >= 1 && n <= 5)
     const sentiments = (searchParams.get('sentiments') || '')
       .split(',')
       .map(s => s.trim())
-      .filter(Boolean)
+      .filter(s => ['positive', 'neutral', 'negative'].includes(s))
     const search = searchParams.get('search') || ''
     const qrs = (searchParams.get('qrs') || '')
       .split(',')
       .map(s => s.trim())
       .filter(Boolean)
+    
+    // New filter parameters
+    const includeAudio = searchParams.get('includeAudio') !== 'false'
+    const includeText = searchParams.get('includeText') !== 'false'
+    const isFlagged = searchParams.get('isFlagged') === 'true' ? true : searchParams.get('isFlagged') === 'false' ? false : null
+    const isAddressed = searchParams.get('isAddressed') === 'true' ? true : searchParams.get('isAddressed') === 'false' ? false : null
+
+    // Handle QR filter by converting QR codes to survey IDs first
+    let surveyIds: string[] | null = null
+    if (qrs.length > 0) {
+      const { data: surveyRows, error: surveyErr } = await supabaseServer
+        .from('surveys')
+        .select('id')
+        .eq('business_id', businessId)
+        .in('qr_code', qrs)
+      if (surveyErr) return NextResponse.json({ error: surveyErr.message }, { status: 500 })
+      surveyIds = (surveyRows || []).map(r => r.id)
+      if (surveyIds.length === 0) {
+        return NextResponse.json({ items: [], total: 0, page, limit })
+      }
+    }
+
+    // Check for impossible filter combinations
+    if (!includeAudio && !includeText) {
+      return NextResponse.json({ items: [], total: 0, page, limit })
+    }
 
     let query = supabaseServer
       .from('responses')
@@ -84,22 +113,45 @@ export async function GET(request: NextRequest) {
       .eq('business_id', businessId)
       .eq('is_spam', false)
 
+    // Apply date filters
     if (startDate) query = query.gte('created_at', startDate)
     if (endDate) query = query.lte('created_at', endDate)
+    
+    // Apply rating and sentiment filters
     if (ratings.length > 0) query = query.in('rating', ratings)
     if (sentiments.length > 0) query = query.in('sentiment', sentiments)
-    if (search) query = query.or(`transcription.ilike.%${search}%,keywords.cs.{${search}}`)
-    if (qrs.length > 0) {
-      // join via surveys by qr_code using a filter on survey_id list fetched first
-      const { data: surveyRows, error: surveyErr } = await supabaseServer
-        .from('surveys')
-        .select('id')
-        .eq('business_id', businessId)
-        .in('qr_code', qrs)
-      if (surveyErr) return NextResponse.json({ error: surveyErr.message }, { status: 500 })
-      const surveyIds = (surveyRows || []).map(r => r.id)
-      if (surveyIds.length > 0) query = query.in('survey_id', surveyIds)
-      else return NextResponse.json({ items: [], total: 0, page, limit })
+    
+    // Apply audio/text filters
+    if (!includeAudio) {
+      query = query.is('audio_url', null)
+    } else if (!includeText) {
+      query = query.not('audio_url', 'is', null)
+    }
+    
+    // Apply flag filters
+    if (isFlagged === true) {
+      query = query.eq('is_flagged', true)
+    } else if (isFlagged === false) {
+      query = query.or('is_flagged.is.null,is_flagged.eq.false')
+    }
+    
+    if (isAddressed === true) {
+      query = query.eq('is_addressed', true)
+    } else if (isAddressed === false) {
+      query = query.or('is_addressed.is.null,is_addressed.eq.false')
+    }
+    
+    // Apply search filter
+    if (search) {
+      const searchTerm = search.trim()
+      if (searchTerm) {
+        query = query.or(`transcription.ilike.%${searchTerm}%,keywords.cs.{${searchTerm}}`)
+      }
+    }
+    
+    // Apply survey filter
+    if (surveyIds) {
+      query = query.in('survey_id', surveyIds)
     }
 
     query = query.order('created_at', { ascending: false })

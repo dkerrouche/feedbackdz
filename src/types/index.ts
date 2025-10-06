@@ -168,13 +168,14 @@ export interface AnalyticsData {
 }
 
 export interface ResponseFilters {
-  search: string
-  ratings: number[]
-  sentiments: string[]
   dateRange: {
     start: string
     end: string
-  } | null
+  }
+  ratingFilter: number[] | null
+  sentimentFilter: string[] | null
+  searchQuery: string
+  surveyFilter: string[] | null
   includeAudio: boolean
   includeText: boolean
   isFlagged: boolean | null

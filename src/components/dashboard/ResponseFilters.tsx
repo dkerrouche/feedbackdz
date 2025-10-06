@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ResponseFilters as FilterState } from '@/types';
+import React, { useState, useCallback } from 'react';
+import { type ResponseFilters } from '@/types';
 import { 
   Search, 
   Filter, 
@@ -13,15 +13,26 @@ import {
   X,
   Mic,
   MessageSquare,
-  Download
+  Download,
+  QrCode
 } from 'lucide-react';
+import MultiSelect, { MultiSelectOption } from '@/components/ui/MultiSelect';
+import { getDefaultFilters } from '@/lib/analytics';
+
+interface Survey {
+  id: string;
+  qr_code: string;
+  questions: any[];
+}
 
 interface ResponseFiltersProps {
-  filters: FilterState;
-  onFiltersChange: (filters: FilterState) => void;
+  filters: ResponseFilters;
+  onFiltersChange: (filters: ResponseFilters) => void;
   totalResponses: number;
   filteredCount: number;
+  availableQRs?: Survey[];
   onExport?: () => void;
+  isLoading?: boolean;
 }
 
 export default function ResponseFilters({
@@ -29,29 +40,22 @@ export default function ResponseFilters({
   onFiltersChange,
   totalResponses,
   filteredCount,
-  onExport
+  availableQRs = [],
+  onExport,
+  isLoading = false
 }: ResponseFiltersProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleFilterChange = (key: keyof FilterState, value: any) => {
+  const handleFilterChange = useCallback((key: keyof ResponseFilters, value: any) => {
     onFiltersChange({
       ...filters,
       [key]: value
     });
-  };
+  }, [filters, onFiltersChange]);
 
-  const clearFilters = () => {
-    onFiltersChange({
-      search: '',
-      ratings: [],
-      sentiments: [],
-      dateRange: null,
-      includeAudio: true,
-      includeText: true,
-      isFlagged: null,
-      isAddressed: null
-    } as any);
-  };
+  const clearFilters = useCallback(() => {
+    onFiltersChange(getDefaultFilters());
+  }, [onFiltersChange]);
 
   const hasActiveFilters = Object.values(filters).some(value => 
     value !== null && value !== '' && value !== undefined
@@ -129,9 +133,10 @@ export default function ResponseFilters({
         <input
           type="text"
           placeholder="Search responses..."
-          value={filters.search}
-          onChange={(e) => handleFilterChange('search', e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          value={filters.searchQuery}
+          onChange={(e) => handleFilterChange('searchQuery', e.target.value)}
+          disabled={isLoading}
+          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
         />
       </div>
 
@@ -148,13 +153,14 @@ export default function ResponseFilters({
                 <label key={rating} className="flex items-center space-x-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={(filters as any).ratings?.includes(rating)}
+                    checked={filters.ratingFilter?.includes(rating) || false}
                     onChange={(e) => {
-                      const current = (filters as any).ratings || []
+                      const current = filters.ratingFilter || []
                       const next = e.target.checked ? [...current, rating] : current.filter((r: number) => r !== rating)
-                      handleFilterChange('ratings' as any, next)
+                      handleFilterChange('ratingFilter', next.length > 0 ? next : null)
                     }}
-                    className="text-blue-600 focus:ring-blue-500 rounded"
+                    disabled={isLoading}
+                    className="text-blue-600 focus:ring-blue-500 rounded disabled:cursor-not-allowed"
                   />
                   <div className="flex items-center space-x-1">
                     {renderStars(rating)}
@@ -179,13 +185,14 @@ export default function ResponseFilters({
                 <label key={sentiment.value} className="flex items-center space-x-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={(filters as any).sentiments?.includes(sentiment.value)}
+                    checked={filters.sentimentFilter?.includes(sentiment.value) || false}
                     onChange={(e) => {
-                      const current = (filters as any).sentiments || []
+                      const current = filters.sentimentFilter || []
                       const next = e.target.checked ? [...current, sentiment.value] : current.filter((s: string) => s !== sentiment.value)
-                      handleFilterChange('sentiments' as any, next)
+                      handleFilterChange('sentimentFilter', next.length > 0 ? next : null)
                     }}
-                    className="text-blue-600 focus:ring-blue-500 rounded"
+                    disabled={isLoading}
+                    className="text-blue-600 focus:ring-blue-500 rounded disabled:cursor-not-allowed"
                   />
                   <div className={`flex items-center space-x-1 ${sentiment.color}`}>
                     {getSentimentIcon(sentiment.value)}
@@ -205,9 +212,10 @@ export default function ResponseFilters({
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={(filters as any).includeAudio === true}
-                  onChange={(e) => handleFilterChange('includeAudio' as any, e.target.checked)}
-                  className="text-blue-600 focus:ring-blue-500 rounded"
+                  checked={filters.includeAudio}
+                  onChange={(e) => handleFilterChange('includeAudio', e.target.checked)}
+                  disabled={isLoading}
+                  className="text-blue-600 focus:ring-blue-500 rounded disabled:cursor-not-allowed"
                 />
                 <div className="flex items-center space-x-1 text-blue-600">
                   <Mic className="w-4 h-4" />
@@ -218,9 +226,10 @@ export default function ResponseFilters({
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={(filters as any).includeText === true}
-                  onChange={(e) => handleFilterChange('includeText' as any, e.target.checked)}
-                  className="text-blue-600 focus:ring-blue-500 rounded"
+                  checked={filters.includeText}
+                  onChange={(e) => handleFilterChange('includeText', e.target.checked)}
+                  disabled={isLoading}
+                  className="text-blue-600 focus:ring-blue-500 rounded disabled:cursor-not-allowed"
                 />
                 <div className="flex items-center space-x-1 text-gray-600">
                   <MessageSquare className="w-4 h-4" />
@@ -241,7 +250,8 @@ export default function ResponseFilters({
                   type="checkbox"
                   checked={filters.isFlagged === true}
                   onChange={(e) => handleFilterChange('isFlagged', e.target.checked ? true : null)}
-                  className="text-blue-600 focus:ring-blue-500 rounded"
+                  disabled={isLoading}
+                  className="text-blue-600 focus:ring-blue-500 rounded disabled:cursor-not-allowed"
                 />
                 <span className="text-sm text-red-600">Flagged</span>
               </label>
@@ -251,11 +261,35 @@ export default function ResponseFilters({
                   type="checkbox"
                   checked={filters.isAddressed === true}
                   onChange={(e) => handleFilterChange('isAddressed', e.target.checked ? true : null)}
-                  className="text-blue-600 focus:ring-blue-500 rounded"
+                  disabled={isLoading}
+                  className="text-blue-600 focus:ring-blue-500 rounded disabled:cursor-not-allowed"
                 />
                 <span className="text-sm text-green-600">Addressed</span>
               </label>
             </div>
+          </div>
+
+          {/* QR Code Filter */}
+          <div className="md:col-span-2 lg:col-span-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="flex items-center space-x-1">
+                <QrCode className="w-4 h-4" />
+                <span>QR Codes</span>
+              </div>
+            </label>
+            <MultiSelect
+              options={availableQRs.map(qr => ({
+                value: qr.qr_code,
+                label: qr.qr_code
+              }))}
+              value={filters.surveyFilter || []}
+              onChange={(value) => handleFilterChange('surveyFilter', value.length > 0 ? value as string[] : null)}
+              placeholder="Select QR codes..."
+              searchable={true}
+              disabled={isLoading}
+              maxDisplayItems={2}
+              className="w-full"
+            />
           </div>
         </div>
       )}

@@ -97,6 +97,32 @@ function applyFilters(responses: RealtimeResponse[], filters: ResponseFilters): 
     filtered = filtered.filter(r => filters.surveyFilter!.includes(r.survey_id))
   }
 
+  // Audio/Text filter
+  if (!filters.includeAudio && !filters.includeText) {
+    // If neither is included, return empty results
+    return []
+  } else if (!filters.includeAudio) {
+    // Only text responses (no audio)
+    filtered = filtered.filter(r => !r.audio_url)
+  } else if (!filters.includeText) {
+    // Only audio responses
+    filtered = filtered.filter(r => !!r.audio_url)
+  }
+  // If both are true, no additional filtering needed
+
+  // Flag filters
+  if (filters.isFlagged === true) {
+    filtered = filtered.filter(r => r.is_flagged === true)
+  } else if (filters.isFlagged === false) {
+    filtered = filtered.filter(r => r.is_flagged !== true)
+  }
+
+  if (filters.isAddressed === true) {
+    filtered = filtered.filter(r => r.is_addressed === true)
+  } else if (filters.isAddressed === false) {
+    filtered = filtered.filter(r => r.is_addressed !== true)
+  }
+
   return filtered
 }
 
@@ -172,7 +198,11 @@ export function getDefaultFilters(): ResponseFilters {
     ratingFilter: null,
     sentimentFilter: null,
     searchQuery: '',
-    surveyFilter: null
+    surveyFilter: null,
+    includeAudio: true,
+    includeText: true,
+    isFlagged: null,
+    isAddressed: null
   }
 }
 

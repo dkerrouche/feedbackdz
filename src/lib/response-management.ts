@@ -79,6 +79,20 @@ export async function exportResponses(businessId: string, filters?: Partial<Resp
       // API expects QR codes list as `qrs`
       params.set('qrs', filters.surveyFilter.join(','))
     }
+    
+    // Add new filter parameters
+    if (filters?.includeAudio !== undefined) {
+      params.set('includeAudio', filters.includeAudio.toString())
+    }
+    if (filters?.includeText !== undefined) {
+      params.set('includeText', filters.includeText.toString())
+    }
+    if (filters?.isFlagged !== undefined && filters.isFlagged !== null) {
+      params.set('isFlagged', filters.isFlagged.toString())
+    }
+    if (filters?.isAddressed !== undefined && filters.isAddressed !== null) {
+      params.set('isAddressed', filters.isAddressed.toString())
+    }
 
     const response = await fetch(`/api/responses/export?${params.toString()}`, {
       method: 'GET'
