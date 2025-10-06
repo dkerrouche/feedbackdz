@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear FeedbackDZ Storage</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .btn {
+            background: #2563eb;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .btn:hover {
+            background: #1d4ed8;
+        }
+        .success {
+            color: #059669;
+            margin-top: 20px;
+        }
+        .info {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧹 Clear FeedbackDZ Storage</h1>
+    <div class="info">
+        <p>This will clear all localStorage data including old mock auth sessions.</p>
+        <p>Use this if you're seeing "Go to Dashboard" without signing in.</p>
+    </div>
+    
+    <button class="btn" onclick="clearStorage()">Clear All Storage</button>
+    
+    <div id="result"></div>
+
+    <script>
+        function clearStorage() {
+            // Clear specific keys
+            const keysToRemove = [
+                'feedbackdz_auth',
+                'feedbackdz_dev_auth',
+                'supabase.auth.token'
+            ];
+            
+            let cleared = 0;
+            keysToRemove.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    localStorage.removeItem(key);
+                    cleared++;
+                }
+            });
+
+            // Also clear all localStorage to be safe
+            localStorage.clear();
+            
+            // Clear sessionStorage
+            sessionStorage.clear();
+            
+            // Clear cookies
+            document.cookie.split(";").forEach(function(c) {
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            });
+
+            document.getElementById('result').innerHTML = 
+                '<div class="success"><strong>✅ Storage cleared!</strong><br><br>' +
+                'Cleared ' + cleared + ' old auth keys<br>' +
+                'Please <a href="/">return to home</a> and sign in again.</div>';
+        }
+    </script>
+</body>
+</html>
